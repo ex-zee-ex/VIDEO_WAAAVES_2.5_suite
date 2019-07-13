@@ -94,7 +94,7 @@ unsigned int framecount=0; // framecounter used to calc offset eeettt
 
 //i got this up to 240 frames with steady on my computer, is a bit skewed extreme for real time video
 //executions tho
-const int fbob=10; // number of "framedelay" buffers eeettt
+const int fbob=30; // number of "framedelay" buffers eeettt
 //int dd=fbob;
 //this buffers the framebuffers from the final screen draws
 
@@ -293,8 +293,8 @@ void ofApp::update() {
     
     
     
-    //cam1.update();
-    //cam2.update();
+    cam1.update();
+    cam2.update();
     
     //movie loop hack
     //uncomment this part to update the movie looping thing
