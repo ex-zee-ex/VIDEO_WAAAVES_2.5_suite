@@ -743,6 +743,10 @@ void ofApp::draw() {
     
     shader_mixer.end();
     
+	
+    //this bit is for just testing stuff with a pretty little rotating square
+    //you can just put whatever graphical code you want in this section and it will draw over everything
+	/*
     ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
     ofNoFill();
     ofSetRectMode(OF_RECTMODE_CENTER);
@@ -754,6 +758,10 @@ void ofApp::draw() {
     ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
     ofPopMatrix();
     ofSetRectMode(OF_RECTMODE_CORNER);
+    */
+    
+    
+    
     //secret visualizer fucntionality hidden in the code
     /*
     ofColor color;
