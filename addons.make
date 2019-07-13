@@ -1,0 +1,3 @@
+ofxDatGui
+ofxMidi
+ofxSyphon
