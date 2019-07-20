@@ -1,6 +1,10 @@
 # VIDEO_WAAAVES_1.5
-openFrameworks
-requires ofxSyphon, ofxMidi and ofxDatGui addons
+a video mixer, framebuffer delay, and feedback resynthesis engine built in openFrameworks https://openframeworks.cc/
+
+
+requires ofxSyphon github.com/astellato/ofxSyphon, ofxMidi github.com/danomatika/ofxMidi and ofxDatGui github.com/braitsch/ofxDatGui addons
+
+for windows and linux check the noSyphon folder for alternate versions of some files to copy over into the src folder to get u up and running in syphon free zones
 
 if you have never used oF and/or Xcode before here are some troubleshooting tips to try before contacting me
 1. the entire folder structure needs to be intact and moved into the apps/myApps folder within the openframeworks folder
