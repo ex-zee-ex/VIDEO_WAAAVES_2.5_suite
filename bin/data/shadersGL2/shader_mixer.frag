@@ -8,6 +8,7 @@ uniform sampler2DRect cam2;
 uniform sampler2DRect fb0;
 uniform sampler2DRect fb1;
 uniform sampler2DRect fb2;
+uniform sampler2DRect fb3;
 
 //fb0
 uniform vec3 fb0_hsb_x;
@@ -26,6 +27,12 @@ uniform vec3 fb2_hsb_x;
 uniform vec3 fb2_hue_x;
 uniform vec3 fb2_rescale;
 uniform vec3 fb2_modswitch;
+
+//fb3
+uniform vec3 fb3_hsb_x;
+uniform vec3 fb3_hue_x;
+uniform vec3 fb3_rescale;
+uniform vec3 fb3_modswitch;
 
 uniform float compScalex;
 uniform float compScaley;
@@ -95,6 +102,11 @@ uniform float fb2lumakeythresh;
 uniform int fb2mix;
 uniform float fb2blend;
 
+uniform float fb3lumakeyvalue;
+uniform float fb3lumakeythresh;
+uniform int fb3mix;
+uniform float fb3blend;
+
 //channel1 variablesfrom gui
 uniform float channel1hue_x;
 uniform float channel1saturation_x;
@@ -150,8 +162,18 @@ uniform vec2 cam2dimensions;
 
 uniform float pp=1.0;
 
-
+//just some generice testing varibles
 uniform float qq;
+uniform float ee;
+
+vec2 wrapCoord(vec2 coord){
+    vec2 wrapped=coord;
+    wrapped.x=mod(wrapped.x,width);
+    wrapped.y=mod(wrapped.y,height);
+    return wrapped;
+    
+
+}//endwrapcoord
 
 vec3 rgb2hsv(vec3 c)
 {
@@ -172,9 +194,10 @@ vec3 hsv2rgb(vec3 c)
 }
 
 
-vec3 fb_hsbop(vec3 c,vec3 hsbx,vec3 huex,vec3 modswitch)
+vec3 fb_hsbop(vec3 c,vec3 hsbx,vec3 huex,vec3 modswitch,float bright_fold_switch)
 {
     
+    int sat_fold_switch=0;
     
     c.r=abs(c.r*hsbx.r+huex.z*sin(c.r/3.14));
     c.r=fract(mod(c.r,huex.x)+huex.y);
@@ -182,9 +205,29 @@ vec3 fb_hsbop(vec3 c,vec3 hsbx,vec3 huex,vec3 modswitch)
     c.b=c.b*hsbx.b;
     
     
-    if(c.g>1.0){c.g=1.0;}
+    if(c.g>1.0){
+        
+        if(sat_fold_switch==1){
+            c.g=fract(c.g);
+        }
+        if(sat_fold_switch==0){
+            c.g=1.0;
+        }
+
+    }
     
-    if(c.b>1.0){c.b=1.0;}
+    
+    if(c.b>1.0){
+        if(bright_fold_switch==1){
+            c.b=fract(c.b);
+        }
+        if(bright_fold_switch==0){
+            c.b=1.0;
+        }
+        
+    
+    }//endifcb
+   
     
     if(modswitch.r==1.0){ c.r=1.0-c.r;}
     if(modswitch.g==1.0){ c.g=1.0-c.g;}
@@ -345,6 +388,96 @@ vec4 mix_rgb(vec4 ch1, vec4 ch2, int mixswitch,float blend, float lumavalue, flo
 
 
 
+
+//pixelatefunction
+
+//pixelate zones
+//turn this into fucntion
+
+/*
+vec4 pixel_color=vec4(0.0,0.0,0.0,0.0);
+float pixel_scale=floor(ps*(.33*cam1color.r+.5*cam1color.g+.16*cam1color.b));
+//float pixel_scale=floor(ps);
+vec2 pixelScaleCoord=vec2(0.0,0.0);
+pixelScaleCoord.x=scale1*flip.x/1024.0;
+pixelScaleCoord.y=scale1*flip.y/1024.0;
+
+
+
+pixelScaleCoord.x=floor(pixel_scale*pixelScaleCoord.x)/pixel_scale;
+pixelScaleCoord.y=floor(pixel_scale*pixelScaleCoord.y)/pixel_scale;
+
+pixelScaleCoord.x=1024*pixelScaleCoord.x;
+pixelScaleCoord.y=1024*pixelScaleCoord.y;
+
+pixel_color=texture2DRect(cam2, pixelScaleCoord);
+
+
+cam1color=mix(pixel_color,cam1color,.5);
+
+
+*/
+
+
+vec4 pixelate(float scale, vec2 coord,sampler2DRect  pixelTex,float pixelMixxx,vec4 c){
+    vec4 pixel_color=texture2DRect(pixelTex,coord);
+    vec2 pixelScaleCoord= coord;
+    
+    //add a switch and control for how much brightness changes stuff up
+    scale=floor(scale*(1+.5*(.33*pixel_color.r+.5*pixel_color.g+.16*pixel_color.b)));
+    
+    pixelScaleCoord.x=coord.x/width;
+    pixelScaleCoord.y=coord.y/height;
+    
+    pixelScaleCoord.x=floor(scale*pixelScaleCoord.x)/scale;
+    pixelScaleCoord.y=floor(scale*pixelScaleCoord.y)/scale;
+    
+    pixelScaleCoord.x=width*pixelScaleCoord.x;
+    pixelScaleCoord.y=height*pixelScaleCoord.y;
+    
+    pixel_color=texture2DRect(pixelTex,pixelScaleCoord);
+    
+    return mix(pixel_color,c,pixelMixxx);
+
+}//endpixelatefunction
+
+vec2 swirl(vec2 coord){
+    vec2 swirlCoord=vec2(0,0);
+    /*
+     //oneversion...from shadertoys
+    float effectRadius=.5;
+    float effectAngle=2*3.14;
+    vec2 center=vec2(width/2,height/2);
+    
+    swirlCoord=coord-center;
+    
+    float len=length(swirlCoord);
+    float angle=atan(swirlCoord.x,swirlCoord.y)+effectAngle*smoothstep(effectRadius,0,len);
+    float radius=length(swirlCoord);
+    
+    swirlCoord=vec2(radius*cos(angle)+center.x,radius*sin(angle)+center.y);
+    */
+    
+    
+    
+    
+    return swirlCoord;
+}//endswirl
+
+
+vec2 rotate(vec2 coord,float theta){
+    vec2 center_coord=vec2(coord.x-width/2,coord.y-height/2);
+    vec2 rotate_coord=vec2(0,0);
+    rotate_coord.x=center_coord.x*cos(theta)-center_coord.y*sin(theta);
+    rotate_coord.y=center_coord.x*sin(theta)+center_coord.y*cos(theta);
+    rotate_coord=rotate_coord+vec2(width/2,height/2);
+    rotate_coord=mod(rotate_coord,vec2(width,height));
+    
+    return rotate_coord;
+    
+
+}//endrotate
+
 void main()
 {
     //set up dummy variables for each channel
@@ -362,22 +495,62 @@ void main()
     //vec2 fb0_coord=fb0_rescale.z*texCoordVarying;
     
     //center should be a variable sent that displaces where yr center is wished to be
-    int center=512;
+    vec2 center=vec2(width/2,height/2);
     
-    vec2 fb0_coord=vec2(texCoordVarying.x-center,texCoordVarying.y-center);
+    vec2 fb0_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.y);
     fb0_coord=fb0_rescale.z*fb0_coord;
-    fb0_coord.xy=fb0_rescale.xy+fb0_coord.xy+center;
+    fb0_coord.xy=fb0_rescale.xy+fb0_coord.xy+center.xy;
+    
+    fb0_coord=wrapCoord(fb0_coord);
     vec4 fb0_color = texture2DRect(fb0,fb0_coord);
     
-    vec2 fb1_coord=vec2(texCoordVarying.x-center,texCoordVarying.y-center);
+    ///testing the pixelation function
+    //0 mix value is pure pixel
+    //1 mix value is bypass
+    //smaller values for pixel size make larger pixels
+    //the way to calculate the actual pixel size is width/index
+    
+    //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color);
+    
+    
+    //testing rotations in different orders
+    /*
+    vec2 fb1_swirl_coord=rotate(texCoordVarying,qq);
+    
+    vec2 fb1_coord=vec2(fb1_swirl_coord.x-center.x,fb1_swirl_coord.y-center.x);
     fb1_coord=fb1_rescale.z*fb1_coord;
-    fb1_coord.xy=fb1_rescale.xy+fb1_coord.xy+center;
+    fb1_coord.xy=fb1_rescale.xy+fb1_coord.xy+center.xy;
+    vec4 fb1_color = texture2DRect(fb1,fb1_coord);
+    */
+    
+    
+    //original flavor
+    
+    vec2 fb1_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.x);
+    fb1_coord=fb1_rescale.z*fb1_coord;
+    fb1_coord.xy=fb1_rescale.xy+fb1_coord.xy+center.xy;
+    fb1_coord=wrapCoord(fb1_coord);
+
     vec4 fb1_color = texture2DRect(fb1,fb1_coord);
     
-    vec2 fb2_coord=vec2(texCoordVarying.x-center,texCoordVarying.y-center);
+    //testing the rotate function
+    vec2 fb1_swirl_coord=rotate(fb1_coord,qq);
+    fb1_coord=wrapCoord(fb1_coord);
+    fb1_color=texture2DRect(fb1,fb1_swirl_coord);
+    
+    vec2 fb2_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.y);
     fb2_coord=fb2_rescale.z*fb2_coord;
-    fb2_coord.xy=fb2_rescale.xy+fb2_coord.xy+center;
+    fb2_coord.xy=fb2_rescale.xy+fb2_coord.xy+center.xy;
     vec4 fb2_color = texture2DRect(fb2,fb2_coord);
+    
+    vec2 fb2_swirl_coord=rotate(fb2_coord,ee);
+    fb2_color=texture2DRect(fb2,fb2_swirl_coord);
+    
+    vec2 fb3_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.y);
+    fb3_coord=fb3_rescale.z*fb3_coord;
+    fb3_coord.xy=fb3_rescale.xy+fb3_coord.xy+center.xy;
+    
+    vec4 fb3_color = texture2DRect(fb3,fb3_coord);
     
     vec4 syphon_color=texture2DRect(syphon,texCoordVarying);
     
@@ -421,31 +594,6 @@ void main()
     
     
     
-    //pixelate zones
-    //turn this into fucntion
-    /*
-    vec4 pixel_color=vec4(0.0,0.0,0.0,0.0);
-    float pixel_scale=floor(ps*(.33*cam2color.r+.5*cam2color.g+.16*cam2color.b));
-    //float pixel_scale=floor(ps);
-    vec2 pixelScaleCoord=vec2(0.0,0.0);
-    pixelScaleCoord.x=scale1*flip.x/1024.0;
-    pixelScaleCoord.y=scale1*flip.y/1024.0;
-    
-   
-    
-    pixelScaleCoord.x=floor(pixel_scale*pixelScaleCoord.x)/pixel_scale;
-    pixelScaleCoord.y=floor(pixel_scale*pixelScaleCoord.y)/pixel_scale;
-    
-    pixelScaleCoord.x=1024*pixelScaleCoord.x;
-    pixelScaleCoord.y=1024*pixelScaleCoord.y;
-    
-    pixel_color=texture2DRect(cam2, pixelScaleCoord);
-    
-    
-    cam2color=mix(pixel_color,cam2color,.5);
-    */
-    
-   
     
     
     
@@ -508,6 +656,7 @@ void main()
     
     vec3 fb1color_hsb=rgb2hsv(vec3(fb1_color.r,fb1_color.g,fb1_color.b));
     vec3 fb2color_hsb=rgb2hsv(vec3(fb2_color.r,fb2_color.g,fb2_color.b));
+    vec3 fb3color_hsb=rgb2hsv(vec3(fb3_color.r,fb3_color.g,fb3_color.b));
     
     
    
@@ -531,17 +680,18 @@ void main()
     
      //  vec3 hsb_x=vec3(1.01,1.01,1.01);
   //  vec3 hue_x=vec3(1.0,0.0,0.0);
-    fb0color_hsb=fb_hsbop(fb0color_hsb,fb0_hsb_x,fb0_hue_x,fb0_modswitch);
+    fb0color_hsb=fb_hsbop(fb0color_hsb,fb0_hsb_x,fb0_hue_x,fb0_modswitch,0);
     
    // vec3 fb1_modswitch=vec3(0.0,0.0,0.0);
     //  vec3 hsb_x=vec3(1.01,1.01,1.01);
     //  vec3 hue_x=vec3(1.0,0.0,0.0);
-    fb1color_hsb=fb_hsbop(fb1color_hsb,fb1_hsb_x,fb1_hue_x,fb1_modswitch);
+    fb1color_hsb=fb_hsbop(fb1color_hsb,fb1_hsb_x,fb1_hue_x,fb1_modswitch,0);
     
     //vec3 fb2_modswitch=vec3(0.0,0.0,0.0);
       //vec3 fb2_hsb_x=vec3(1.01,1.01,2.01);
     //  vec3 hue_x=vec3(1.0,0.0,0.0);
-    fb2color_hsb=fb_hsbop(fb2color_hsb,fb2_hsb_x,fb2_hue_x,fb2_modswitch);
+    fb2color_hsb=fb_hsbop(fb2color_hsb,fb2_hsb_x,fb2_hue_x,fb2_modswitch,0);
+    fb3color_hsb=fb_hsbop(fb3color_hsb,fb3_hsb_x,fb3_hue_x,fb3_modswitch,0);
     
     
    
@@ -560,6 +710,7 @@ void main()
     fb0_color=vec4(vec3(hsv2rgb(fb0color_hsb)),1.0);
     fb1_color=vec4(vec3(hsv2rgb(fb1color_hsb)),1.0);
     fb2_color=vec4(vec3(hsv2rgb(fb2color_hsb)),1.0);
+    fb3_color=vec4(vec3(hsv2rgb(fb3color_hsb)),1.0);
 
     //next we do the mixxxing
   
@@ -573,10 +724,19 @@ void main()
     
     
     
-    mixout_colorhsb=vec3(rgb2hsv(vec3(mixout_color.x,mixout_color.y,mixout_color.z)));
+    
 
     
     mixout_color=mix_rgb(mixout_color,fb0_color,fb0mix,fb0blend,fb0lumakeyvalue,fb0lumakeythresh, mixout_colorhsb.z,fb0color_hsb.z);
+    
+    mixout_colorhsb=vec3(rgb2hsv(vec3(mixout_color.x,mixout_color.y,mixout_color.z)));
+    
+    mixout_color=mix_rgb(mixout_color,fb1_color,fb1mix,fb1blend,fb1lumakeyvalue,fb1lumakeythresh, mixout_colorhsb.z,fb1color_hsb.z);
+    
+    mixout_colorhsb=vec3(rgb2hsv(vec3(mixout_color.x,mixout_color.y,mixout_color.z)));
+    
+    
+    
     
     mixout_color=mix_rgb(mixout_color,fb2_color,fb2mix,fb2blend,fb2lumakeyvalue,fb2lumakeythresh, mixout_colorhsb.z,fb2color_hsb.z);
     
@@ -585,7 +745,7 @@ void main()
     
     
     
-    mixout_color=mix_rgb(mixout_color,fb1_color,fb1mix,fb1blend,fb1lumakeyvalue,fb1lumakeythresh, mixout_colorhsb.z,fb1color_hsb.z);
+    mixout_color=mix_rgb(mixout_color,fb3_color,fb3mix,fb3blend,fb3lumakeyvalue,fb3lumakeythresh, mixout_colorhsb.z,fb3color_hsb.z);
     
   
     

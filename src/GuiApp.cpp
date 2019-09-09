@@ -8,7 +8,7 @@
 #include "GuiApp.h"
 
 
-
+int fbob=119;
 
 void GuiApp::setup(){
     
@@ -28,6 +28,7 @@ void GuiApp::setup(){
     vector<string> FB1mixoptions ={"FB1 none","FB1 blend","FB1 key"};
     
     vector<string> FB2mixoptions ={"FB2 none","FB2 blend","FB2 key"};
+    vector<string> FB3mixoptions ={"FB3 none","FB3 blend","FB3 key"};
     
     //put these all into a folder? yes please do
     
@@ -64,7 +65,7 @@ void GuiApp::setup(){
     
     fb0brightkeyamountslider->bind(fb0lumakeyvalue);
     fb0brightkeythreshslider->bind(fb0lumakeythresh);
-    fb0delayamountslider=fb0mix_thingsfolder->addSlider("fb0 delay amnt",0,29);
+    fb0delayamountslider=fb0mix_thingsfolder->addSlider("fb0 delay amnt",0,fbob);
     
     fb0blendslider->bind(fb0blend);
   
@@ -85,7 +86,7 @@ void GuiApp::setup(){
     
     fb1blendslider->bind(fb1blend);
     
-    fb1delayamountslider=fb1mix_thingsfolder->addSlider("fb1 delay amnt",0,29);
+    fb1delayamountslider=fb1mix_thingsfolder->addSlider("fb1 delay amnt",0,fbob);
     
     fb1delayamountslider->bind(fb1delayamnt);
 
@@ -103,9 +104,27 @@ void GuiApp::setup(){
     
     fb2blendslider->bind(fb2blend);
     
-    fb2delayamountslider=fb2mix_thingsfolder->addSlider("fb2 delay amnt",0,29);
+    fb2delayamountslider=fb2mix_thingsfolder->addSlider("fb2 delay amnt",0,fbob);
     
     fb2delayamountslider->bind(fb2delayamnt);
+    
+    
+    ///FB3mixcontrol
+    guisignal->addDropdown("FB3_mixoptions", FB3mixoptions);
+    ofxDatGuiFolder* fb3mix_thingsfolder = guisignal->addFolder("Fb3mixthings", ofColor::white);
+
+    fb3blendslider=fb3mix_thingsfolder->addSlider("fb3 mixamnt",-5.0,5.0);
+    fb3brightkeyamountslider=fb3mix_thingsfolder->addSlider("fb3mixbrightkeyamnt",0.00,1.00);
+    fb3brightkeythreshslider=fb3mix_thingsfolder->addSlider("fb3mixbrightkeythreshamnt",0.00,1.00);
+    
+    fb3brightkeyamountslider->bind(fb3lumakeyvalue);
+    fb3brightkeythreshslider->bind(fb3lumakeythresh);
+    
+    fb3blendslider->bind(fb3blend);
+    
+    fb3delayamountslider=fb3mix_thingsfolder->addSlider("fb3 delay amnt",0,fbob);
+    
+    fb3delayamountslider->bind(fb3delayamnt);
 
     
     
@@ -299,7 +318,7 @@ void GuiApp::setup(){
     
     fb1_x_displace_slider= fb1_opsfolder->addSlider("x_displace", -20.0, 20.0);
     fb1_y_displace_slider= fb1_opsfolder->addSlider("y_displace", -20.0, 20.0);
-    fb1_z_displace_slider= fb1_opsfolder->addSlider("z_displace", .0, 200.0);
+    fb1_z_displace_slider= fb1_opsfolder->addSlider("z_displace", 90, 110);
     
     
     
@@ -344,6 +363,39 @@ void GuiApp::setup(){
     fb2_x_displace_slider->bind(fb2_x_displace);
     fb2_y_displace_slider->bind(fb2_y_displace);
     fb2_z_displace_slider->bind(fb2_z_displace);
+    
+    
+    //fb3
+    ofxDatGuiFolder* fb3_opsfolder = guiFBops->addFolder("fb3ops", ofColor::white);
+    fb3_hue_slider= fb3_opsfolder->addSlider("hue_x ", 0.0, 20.0);
+    fb3_saturation_slider= fb3_opsfolder->addSlider("sat_x ", 0.0, 20.0);
+    fb3_bright_slider= fb3_opsfolder->addSlider("bright_x", 0.0, 20.0);
+    
+    fb3_hue_invert_toggle=fb3_opsfolder->addToggle("hue2 invert",0);
+    fb3_saturation_invert_toggle=fb3_opsfolder->addToggle("saturationg2 invert",0);
+    fb3_bright_invert_toggle=fb3_opsfolder->addToggle("bright2 invert",0);
+    
+    fb3_huex_mod_slider= fb3_opsfolder->addSlider("huex_mod", 0.0, 20.0);
+    fb3_huex_offset_slider= fb3_opsfolder->addSlider("huex_offset", -20.0, 20.0);
+    fb3_huex_lfo_slider= fb3_opsfolder->addSlider("huex_lfo", -20.0, 20.0);
+    
+    fb3_x_displace_slider= fb3_opsfolder->addSlider("x_displace", -20.0, 20.0);
+    fb3_y_displace_slider= fb3_opsfolder->addSlider("y_displace", -20.0, 20.0);
+    fb3_z_displace_slider= fb3_opsfolder->addSlider("z_displace", 90, 110.0);
+    
+    
+    
+    
+    fb3_hue_slider->bind(fb3_hue);
+    fb3_saturation_slider->bind(fb3_saturation);
+    fb3_bright_slider->bind(fb3_bright);
+    fb3_huex_mod_slider->bind(fb3_huex_mod);
+    fb3_huex_offset_slider->bind(fb3_huex_offset);
+    fb3_huex_lfo_slider->bind(fb3_huex_lfo);
+    fb3_x_displace_slider->bind(fb3_x_displace);
+    fb3_y_displace_slider->bind(fb3_y_displace);
+    fb3_z_displace_slider->bind(fb3_z_displace);
+
 
 
    
@@ -479,6 +531,21 @@ void GuiApp::onColorPickerEvent(ofxDatGuiColorPickerEvent e)
         if(e.target->getLabel()=="FB2 key"){
             FB2mix=2;
         }
+        
+        if(e.target->getLabel()=="FB3 none"){
+            FB3mix=0;
+        }
+        
+        
+        if(e.target->getLabel()=="FB3 blend"){
+            FB3mix=1;
+            
+        }//endife1
+        
+        if(e.target->getLabel()=="FB3 key"){
+            FB3mix=2;
+        }
+
 
         
         //fb invert toggles
@@ -524,6 +591,14 @@ void GuiApp::onButtonEvent(ofxDatGuiButtonEvent e)
     if(e.target->getLabel()=="saturationg2 invert"){fb2_saturation_invert=!fb2_saturation_invert;}
     
     if(e.target->getLabel()=="bright2 invert"){fb2_bright_invert=!fb2_bright_invert;}
+    
+    if(e.target->getLabel()=="hue3 invert"){fb3_hue_invert=!fb3_hue_invert;}
+    
+    if(e.target->getLabel()=="saturationg3 invert"){fb3_saturation_invert=!fb3_saturation_invert;}
+    
+    if(e.target->getLabel()=="bright3 invert"){fb3_bright_invert=!fb3_bright_invert;}
+    
+    
 
     
     

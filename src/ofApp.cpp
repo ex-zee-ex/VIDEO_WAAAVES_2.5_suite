@@ -39,6 +39,8 @@
 
 #include <iostream>
 
+ofPolyline tetrahedron;
+
 float aa=0.0;
 float ss=0.0;
 float dd=0.0;
@@ -49,8 +51,8 @@ float jj=1;
 float kk=1;
 float ll=.05;
 
-float qq=1.0;
-float ee=100;
+float qq=0;
+float ee=0;
 
 float oo=1.0;
 int ii=1;
@@ -70,6 +72,9 @@ float c5=1;
 float c6=1;
 float c7=1;
 float c8=1;
+
+
+float alpha=255;
 
 float scale1=1;
 float scale2=1;
@@ -94,7 +99,7 @@ unsigned int framecount=0; // framecounter used to calc offset eeettt
 
 //i got this up to 240 frames with steady on my computer, is a bit skewed extreme for real time video
 //executions tho
-const int fbob=30; // number of "framedelay" buffers eeettt
+const int fbob=120; // number of "framedelay" buffers eeettt
 //int dd=fbob;
 //this buffers the framebuffers from the final screen draws
 
@@ -122,7 +127,7 @@ void incIndex()  // call this every frame to calc the offset eeettt
 //--------------------------------------------------------------
 void ofApp::setup() {
     
-    ofSetFrameRate(60);
+    ofSetFrameRate(30);
    // ofDisableAlphaBlending();
     //ofSetVerticalSync(FALSE);
     
@@ -273,13 +278,41 @@ void ofApp::setup() {
     //then command f "movie loop hack" for the next step
     /*
     loopMovie.setUseTexture(true);
-    loopMovie.load("movies/QU.mov");
+    loopMovie.load("movies/VW0.mov");
     loopMovie.setLoopState(OF_LOOP_NORMAL);
     loopMovie.play();
     */
     
     
 
+    //setting up a tetrahedron
+    
+    ofVec3f tri1;
+    ofVec3f tri2;
+    ofVec3f tri3;
+    ofVec3f tri4;
+    tri1.set(1,1,1);
+    tri2.set(-1,-1,1);
+    tri3.set(-1,1,-1);
+    tri4.set(1,-1,-1);
+    float shapeScale=ofGetWidth()/8;
+    
+    tri1=tri1*shapeScale;
+    tri2=tri2*shapeScale;
+    tri3=tri3*shapeScale;
+    tri4=tri4*shapeScale;
+    
+    
+    tetrahedron.lineTo(tri1);
+    tetrahedron.lineTo(tri2);
+    tetrahedron.lineTo(tri4);
+    tetrahedron.lineTo(tri1);
+    tetrahedron.lineTo(tri3);
+    tetrahedron.lineTo(tri2);
+    tetrahedron.lineTo(tri3);
+    tetrahedron.lineTo(tri4);
+    //tetrahedron.lineTo(tri4);
+    
 
     
 }
@@ -560,8 +593,27 @@ void ofApp::draw() {
     
     //fb_modswitch.set(1.0,1.0,1.0);
     shader_mixer.setUniform3f("fb2_modswitch",fb_modswitch);
-
-    shader_mixer.setUniform1f("ps",ee);
+    
+    //fb3
+    hsb_x.set(gui->fb3_hue/10,gui->fb3_saturation/10,gui->fb3_bright/10);
+    
+    //hsb_x.set(1,1,2);
+    shader_mixer.setUniform3f("fb3_hsb_x",hsb_x);
+    
+    
+    hue_x.set(gui->fb3_huex_mod/10,gui->fb3_huex_offset/10,gui->fb3_huex_lfo/10);
+    shader_mixer.setUniform3f("fb3_hue_x",hue_x);
+    
+    
+    fb_rescale.set(gui->fb3_x_displace,gui->fb3_y_displace,gui->fb3_z_displace/100);
+    shader_mixer.setUniform3f("fb3_rescale",fb_rescale);
+    
+    fb_modswitch.set(gui->fb3_hue_invert,gui->fb3_saturation_invert,gui->fb3_bright_invert);
+    
+    //fb_modswitch.set(1.0,1.0,1.0);
+    shader_mixer.setUniform3f("fb3_modswitch",fb_modswitch);
+    
+    shader_mixer.setUniform1f("ee",ee);
     
     
     //here is where controls from the gui get shunted
@@ -680,6 +732,11 @@ void ofApp::draw() {
     shader_mixer.setUniform1f("fb2lumakeythresh", gui->fb2lumakeythresh);
     shader_mixer.setUniform1i("fb2mix", gui->FB2mix);
     
+    shader_mixer.setUniform1f("fb3blend", gui->fb3blend);
+    shader_mixer.setUniform1f("fb3lumakeyvalue", gui->fb3lumakeyvalue);
+    shader_mixer.setUniform1f("fb3lumakeythresh", gui->fb3lumakeythresh);
+    shader_mixer.setUniform1i("fb3mix", gui->FB3mix);
+    
     
    
     
@@ -709,6 +766,7 @@ void ofApp::draw() {
     int delay0=gui->fb0delayamnt;
     int delay1=gui->fb1delayamnt;
     int delay2=gui->fb2delayamnt;
+    int delay3=gui->fb3delayamnt;
     
  
     
@@ -720,6 +778,7 @@ void ofApp::draw() {
      shader_mixer.setUniformTexture("fb0",pastFrames[(abs(framedelayoffset-fbob-delay0)-1)%fbob].getTexture(),4);
     shader_mixer.setUniformTexture("fb1",pastFrames[(abs(framedelayoffset-fbob-delay1)-1)%fbob].getTexture(),5);
     shader_mixer.setUniformTexture("fb2",pastFrames[(abs(framedelayoffset-fbob-delay2)-1)%fbob].getTexture(),6);
+    shader_mixer.setUniformTexture("fb3",pastFrames[(abs(framedelayoffset-fbob-delay3)-1)%fbob].getTexture(),7);
     
   
     
@@ -746,6 +805,18 @@ void ofApp::draw() {
 	
     //this bit is for just testing stuff with a pretty little rotating square
     //you can just put whatever graphical code you want in this section and it will draw over everything
+    /*
+    ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
+    ofNoFill();
+    ofPushMatrix();
+    ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
+    ofRotateZRad(ofGetElapsedTimef()/5);
+    ofRotateYRad(ofGetElapsedTimef()/13);
+    ofRotateXRad(ofGetElapsedTimef()/11);
+    tetrahedron.draw();
+    ofPopMatrix();
+     */
+     
 	/*
     ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
     ofNoFill();
@@ -756,10 +827,40 @@ void ofApp::draw() {
     ofRotateYRad(ofGetElapsedTimef()/13);
     ofRotateXRad(ofGetElapsedTimef()/11);
     ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
+    ofRotateZRad(-ofGetElapsedTimef()/5);
+    ofRotateYRad(-ofGetElapsedTimef()/13);
+    ofRotateXRad(-ofGetElapsedTimef()/11);
+    ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
+    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
+    
     ofPopMatrix();
     ofSetRectMode(OF_RECTMODE_CORNER);
     */
     
+    
+    /*
+    
+    ofRotateZRad(-ofGetElapsedTimef()/5);
+    ofRotateYRad(ofGetElapsedTimef()/13);
+    ofRotateXRad(ofGetElapsedTimef()/11);
+    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
+    ofRotateZRad(ofGetElapsedTimef()/5);
+    ofRotateYRad(-ofGetElapsedTimef()/13);
+    ofRotateXRad(-ofGetElapsedTimef()/11);
+    ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
+    ofRotateZRad(ofGetElapsedTimef()/5);
+    ofRotateYRad(-ofGetElapsedTimef()/13);
+    ofRotateXRad(ofGetElapsedTimef()/11);
+    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
+    ofRotateZRad(-ofGetElapsedTimef()/5);
+    ofRotateYRad(ofGetElapsedTimef()/13);
+    ofRotateXRad(-ofGetElapsedTimef()/11);
+    ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
+    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
+    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
+    
+   
+    */
     
     
     //secret visualizer fucntionality hidden in the code
@@ -916,6 +1017,13 @@ void ofApp::keyPressed(int key){
         aa=ss=dd=ff=gg=hh=0;
     }
     
+    if(key=='='){
+        alpha+=1;
+    }
+    if(key=='-'){
+        alpha-=1;
+    }
+    
     if(key=='2'){
           loop.play();
     }
@@ -969,8 +1077,8 @@ void ofApp::keyPressed(int key){
     
     if(key=='q'){qq+=0.001;cout << "qq"<<qq<< endl;}
     if(key=='w'){qq-=0.001;cout << "qq"<<qq<< endl;}
-    if(key=='e'){ee+=1;cout << "ee"<<ee<< endl;}
-    if(key=='r'){ee-=1;cout << "ee"<<ee<< endl;}
+    if(key=='e'){ee+=.001;cout << "ee"<<ee<< endl;}
+    if(key=='r'){ee-=.001;cout << "ee"<<ee<< endl;}
     
     
     if(key=='u'){ii+=1;}

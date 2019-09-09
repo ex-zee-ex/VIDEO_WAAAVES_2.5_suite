@@ -112,6 +112,11 @@ public:
     ofxDatGuiSlider* fb2brightkeythreshslider;
     ofxDatGuiSlider* fb2blendslider;
     ofxDatGuiSlider* fb2delayamountslider;
+    
+    ofxDatGuiSlider* fb3brightkeyamountslider;
+    ofxDatGuiSlider* fb3brightkeythreshslider;
+    ofxDatGuiSlider* fb3blendslider;
+    ofxDatGuiSlider* fb3delayamountslider;
 
     
     
@@ -173,6 +178,24 @@ public:
     ofxDatGuiButton* fb2_hue_invert_toggle;
     ofxDatGuiButton* fb2_saturation_invert_toggle;
     ofxDatGuiButton* fb2_bright_invert_toggle;
+    
+    //fb3
+    ofxDatGuiSlider* fb3_hue_slider;
+    ofxDatGuiSlider* fb3_saturation_slider;
+    ofxDatGuiSlider* fb3_bright_slider;
+    
+    ofxDatGuiSlider* fb3_huex_mod_slider;
+    ofxDatGuiSlider* fb3_huex_offset_slider;
+    ofxDatGuiSlider* fb3_huex_lfo_slider;
+    
+    ofxDatGuiSlider* fb3_x_displace_slider;
+    ofxDatGuiSlider* fb3_y_displace_slider;
+    ofxDatGuiSlider* fb3_z_displace_slider;
+    
+    ofxDatGuiButton* fb3_hue_invert_toggle;
+    ofxDatGuiButton* fb3_saturation_invert_toggle;
+    ofxDatGuiButton* fb3_bright_invert_toggle;
+
 
 
     
@@ -208,6 +231,11 @@ public:
     float fb2lumakeythresh=0.6;
     int fb2delayamnt=0;
     float fb2blend=.1;
+    
+    float fb3lumakeyvalue=0.1;
+    float fb3lumakeythresh=0.6;
+    int fb3delayamnt=0;
+    float fb3blend=.1;
 
     
     void onDropdownEvent(ofxDatGuiDropdownEvent e);
@@ -223,6 +251,7 @@ public:
     int FBmix=0;
     int FB1mix=0;
     int FB2mix=0;
+    int FB3mix=0;
     
     //h and v flip controls
     bool ch1_h_mirror=false;
@@ -297,6 +326,24 @@ public:
     bool fb2_hue_invert=0;
     bool fb2_saturation_invert=0;
     bool fb2_bright_invert=0;
+    
+    //fb3
+    float fb3_x_displace=0.0;
+    float fb3_y_displace=0.0;
+    float fb3_z_displace=100.0;
+    
+    float fb3_hue=10.0;
+    float fb3_saturation=10.0;
+    float fb3_bright=10.0;
+    
+    float fb3_huex_mod=10.0;
+    float fb3_huex_offset=0.0;
+    float fb3_huex_lfo=0.0;
+    
+    bool fb3_hue_invert=0;
+    bool fb3_saturation_invert=0;
+    bool fb3_bright_invert=0;
+
     
     //channel1 variables
     float channel1bright=1.0;
