@@ -18,15 +18,17 @@ int main(){
     //dualwindowsetup
     ofGLFWWindowSettings settings;
     
-    settings.setSize(1024, 1024);
+   // settings.setSize(1024, 1024);
+    
+     //settings.setSize(1280,720);
 
-    //settings.setSize(1024, 1024);
-    settings.setPosition(ofVec2f(1024,0));
+    settings.setSize(1024, 1024);
+    settings.setPosition(ofVec2f(1100,0));
     settings.resizable = true;
     //settings.decorated = false;
     shared_ptr<ofAppBaseWindow> mainWindow = ofCreateWindow(settings);
     
-    settings.setSize(1024, 1024);
+    settings.setSize(1100, 720);
     settings.setPosition(ofVec2f(0,0));
     settings.resizable = true;
    // settings.doubleBuffering=false;

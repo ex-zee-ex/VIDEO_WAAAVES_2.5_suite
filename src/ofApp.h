@@ -43,6 +43,8 @@ public:
 	std::size_t maxMessages = 10; //< max number of messages to keep track of
     
     ofShader shader_mixer;
+    ofShader shader_blur;
+    ofShader shader_sharpen;
     
    
     
@@ -50,6 +52,7 @@ public:
  
     ofFbo fbo_draw;
     ofFbo fbo_feedback;
+     ofFbo fbo_blur;
     
     
     ofFbo syphonTexture;
@@ -90,5 +93,7 @@ public:
     
     //and send it back out too
     ofxSyphonServer mainOutputSyphonServer;
+    
+    ofImage pnt_img;
     
 };

@@ -15,6 +15,7 @@ public:
     ofxDatGui* guithings;
     
     ofxDatGui* guiFBops;
+    ofxDatGui* guiPixelate;
     
     
     //syphon output switch
@@ -83,19 +84,14 @@ public:
     ofxDatGuiSlider* mix1brightkeyamountslider;
     ofxDatGuiSlider* mix1brightkeythreshslider;
     
-    //CAmix control strip
-  
-    ofxDatGuiSlider* CAmixbrightkeyamountslider;
-    ofxDatGuiSlider* CAmixbrightkeythreshslider;
-    ofxDatGuiSlider* CAmixslider;
-
+    
     
     ofxDatGuiDropdown* ddchannel1;
     ofxDatGuiDropdown* ddchannel2;
     ofxDatGuiDropdown* ddmix1;
     ofxDatGuiDropdown* ddmix2;
     
-    ofxDatGuiDropdown* CAddmix;
+    
     
     //FBmixcontrolstipe
     ofxDatGuiSlider* fb0brightkeyamountslider;
@@ -103,29 +99,44 @@ public:
     ofxDatGuiSlider* fb0blendslider;
     ofxDatGuiSlider* fb0delayamountslider;
     
+    ofxDatGuiButton* fb0_hflip_toggle;
+    ofxDatGuiButton* fb0_vflip_toggle;
+    
     ofxDatGuiSlider* fb1brightkeyamountslider;
     ofxDatGuiSlider* fb1brightkeythreshslider;
     ofxDatGuiSlider* fb1blendslider;
     ofxDatGuiSlider* fb1delayamountslider;
+    
+    ofxDatGuiButton* fb1_hflip_toggle;
+    ofxDatGuiButton* fb1_vflip_toggle;
     
     ofxDatGuiSlider* fb2brightkeyamountslider;
     ofxDatGuiSlider* fb2brightkeythreshslider;
     ofxDatGuiSlider* fb2blendslider;
     ofxDatGuiSlider* fb2delayamountslider;
     
+    ofxDatGuiButton* fb2_hflip_toggle;
+    ofxDatGuiButton* fb2_vflip_toggle;
+    
     ofxDatGuiSlider* fb3brightkeyamountslider;
     ofxDatGuiSlider* fb3brightkeythreshslider;
     ofxDatGuiSlider* fb3blendslider;
     ofxDatGuiSlider* fb3delayamountslider;
+    
+    ofxDatGuiButton* fb3_hflip_toggle;
+    ofxDatGuiButton* fb3_vflip_toggle;
 
     
     
     //vertex displacement controls
     
-    ofxDatGuiSlider* x_displace_slider;
-    ofxDatGuiSlider* y_displace_slider;
-    ofxDatGuiSlider* z_displace_slider;
-    ofxDatGuiSlider* w_displace_slider;
+    
+    //blur and sharpen controls
+    ofxDatGuiSlider* blur_amount_slider;
+    ofxDatGuiSlider* sharpen_amount_slider;
+    
+    
+    
 
     //fbop controls
     ofxDatGuiSlider* fb0_hue_slider;
@@ -198,11 +209,90 @@ public:
 
 
 
+    //pixelations
     
+    //cam1
+    ofxDatGuiButton* cam1_pixel_toggle;
+    ofxDatGuiSlider* cam1_pixel_scale_slider;
+    ofxDatGuiSlider* cam1_pixel_mix_slider;
+    ofxDatGuiSlider* cam1_pixel_brightscale_slider;
+    
+    bool cam1_pixel_switch=0;
+    int cam1_pixel_scale=64;
+    float cam1_pixel_mix=1;
+    float cam1_pixel_brightscale=0;
+    
+    //cam2
+    ofxDatGuiButton* cam2_pixel_toggle;
+    ofxDatGuiSlider* cam2_pixel_scale_slider;
+    ofxDatGuiSlider* cam2_pixel_mix_slider;
+    ofxDatGuiSlider* cam2_pixel_brightscale_slider;
+    
+    bool cam2_pixel_switch=0;
+    int cam2_pixel_scale=64;
+    float cam2_pixel_mix=1;
+    float cam2_pixel_brightscale=0;
+    
+    
+    //fb0
+    ofxDatGuiButton* fb0_pixel_toggle;
+    ofxDatGuiSlider* fb0_pixel_scale_slider;
+    ofxDatGuiSlider* fb0_pixel_mix_slider;
+    ofxDatGuiSlider* fb0_pixel_brightscale_slider;
  
+    bool fb0_pixel_switch=0;
+    int fb0_pixel_scale=64;
+    float fb0_pixel_mix=1;
+    float fb0_pixel_brightscale=0;
+    
+    //fb1
+    ofxDatGuiButton* fb1_pixel_toggle;
+    ofxDatGuiSlider* fb1_pixel_scale_slider;
+    ofxDatGuiSlider* fb1_pixel_mix_slider;
+    ofxDatGuiSlider* fb1_pixel_brightscale_slider;
+    
+    bool fb1_pixel_switch=0;
+    int fb1_pixel_scale=64;
+    float fb1_pixel_mix=1;
+    float fb1_pixel_brightscale=0;
+    
+    //fb2
+    ofxDatGuiButton* fb2_pixel_toggle;
+    ofxDatGuiSlider* fb2_pixel_scale_slider;
+    ofxDatGuiSlider* fb2_pixel_mix_slider;
+    ofxDatGuiSlider* fb2_pixel_brightscale_slider;
+    
+    bool fb2_pixel_switch=0;
+    int fb2_pixel_scale=64;
+    float fb2_pixel_mix=1;
+    float fb2_pixel_brightscale=0;
     
     
-  
+    //fb3
+    ofxDatGuiButton* fb3_pixel_toggle;
+    ofxDatGuiSlider* fb3_pixel_scale_slider;
+    ofxDatGuiSlider* fb3_pixel_mix_slider;
+    ofxDatGuiSlider* fb3_pixel_brightscale_slider;
+    
+    bool fb3_pixel_switch=0;
+    int fb3_pixel_scale=64;
+    float fb3_pixel_mix=1;
+    float fb3_pixel_brightscale=0;
+
+    
+    
+    //camera and syphon rescalings
+    ofxDatGuiSlider* cam1_scale_slider;
+    float cam1_scale=.5;
+    
+    ofxDatGuiSlider* cam2_scale_slider;
+    float cam2_scale=.5;
+
+    
+   //master draw xyz rotations and displacements
+   // ofxDatGuiSlider* master_z_displace_slider;
+    //ofxDatGuiSlider* master_z_displace_slider;
+    //ofxDatGuiSlider* master_z_displace_slider;
     
     
     //masterframebuffermixcontrolstrip
@@ -210,8 +300,7 @@ public:
    // ofxDatGuiSlider* masterframebuffermixslider;
     
     
-    //h and v flip toggles
-    ofxDatGuiToggle* ch1_h_mirrortoggle;
+    
  
     
     
@@ -254,7 +343,45 @@ public:
     int FB3mix=0;
     
     //h and v flip controls
-    bool ch1_h_mirror=false;
+    ofxDatGuiButton* cam1_hflip_toggle;
+    ofxDatGuiButton* cam1_vflip_toggle;
+
+    bool cam1_hflip_switch=0;
+    bool cam1_vflip_switch=0;
+    
+    ofxDatGuiButton* cam2_hflip_toggle;
+    ofxDatGuiButton* cam2_vflip_toggle;
+    
+    bool cam2_hflip_switch=0;
+    bool cam2_vflip_switch=0;
+
+    
+
+    bool fb0_hflip_switch=0;
+    bool fb0_vflip_switch=0;
+    
+    bool fb1_hflip_switch=0;
+    bool fb1_vflip_switch=0;
+
+    bool fb2_hflip_switch=0;
+    bool fb2_vflip_switch=0;
+
+    bool fb3_hflip_switch=0;
+    bool fb3_vflip_switch=0;
+    
+    
+    //rotations
+    ofxDatGuiSlider* fb0_rotate_slider;
+    float fb0_rotate=0;
+    
+    ofxDatGuiSlider* fb1_rotate_slider;
+    float fb1_rotate=0;
+    
+    ofxDatGuiSlider* fb2_rotate_slider;
+    float fb2_rotate=0;
+    
+    ofxDatGuiSlider* fb3_rotate_slider;
+    float fb3_rotate=0;
    
     
     //mix1 varibals
@@ -262,18 +389,20 @@ public:
     float mix1lumakeyvalue=0.2;
     float mix1lumakeythresh=0.1;
     
-    ofxDatGuiColorPicker* keyColorPicker;
-    void onColorPickerEvent(ofxDatGuiColorPickerEvent e);
-    ofColor keyColorFromPicker;
     
     //mix2 variables
     int blend2=0;
     
     
-    float x_displace=0.0;
-    float y_displace=0.0;
-    float z_displace=0.0;
-    float w_displace=0.0;
+    //tetrahedron switch
+    ofxDatGuiButton* tetrahedron_switch_toggle;
+    bool tetrahedron_switch=0;
+    
+       
+    //blur and sharpen variables
+    float blur_amount=1;
+    float sharpen_amount=.01;
+    
     
     //fb0
     float fb0_x_displace=0.0;
