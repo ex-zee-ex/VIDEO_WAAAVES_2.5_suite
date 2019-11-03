@@ -15,24 +15,28 @@ uniform vec3 fb0_hsb_x;
 uniform vec3 fb0_hue_x;
 uniform vec3 fb0_rescale;
 uniform vec3 fb0_modswitch;
+uniform float fb0_rotate;
 
 //fb1
 uniform vec3 fb1_hsb_x;
 uniform vec3 fb1_hue_x;
 uniform vec3 fb1_rescale;
 uniform vec3 fb1_modswitch;
+uniform float fb1_rotate;
 
 //fb2
 uniform vec3 fb2_hsb_x;
 uniform vec3 fb2_hue_x;
 uniform vec3 fb2_rescale;
 uniform vec3 fb2_modswitch;
+uniform float fb2_rotate;
 
 //fb3
 uniform vec3 fb3_hsb_x;
 uniform vec3 fb3_hue_x;
 uniform vec3 fb3_rescale;
 uniform vec3 fb3_modswitch;
+uniform float fb3_rotate;
 
 uniform float compScalex;
 uniform float compScaley;
@@ -45,7 +49,8 @@ uniform float ch1_h_mirror;
 
 //vidmixervariables
 
-uniform float scale1;
+uniform float cam1_scale;
+uniform float cam2_scale;
 uniform float width;
 uniform float height;
 
@@ -69,9 +74,6 @@ uniform int mix1;
 uniform int mix2;
 
 
-uniform int FBGLITCHSWITCH;
-uniform int FB1GLITCHSWITCH;
-uniform int FB2GLITCHSWITCH;
 
 
 
@@ -151,8 +153,52 @@ uniform int ch2sat_inverttoggle;
 uniform int ch2bright_inverttoggle;
 
 
+uniform int cam1_hflip_switch;
+uniform int cam1_vflip_switch;
 
 
+uniform int fb0_hflip_switch;
+uniform int fb0_vflip_switch;
+
+uniform int fb1_hflip_switch;
+uniform int fb1_vflip_switch;
+
+uniform int fb2_hflip_switch;
+uniform int fb2_vflip_switch;
+
+uniform int fb3_hflip_switch;
+uniform int fb3_vflip_switch;
+
+
+uniform int fb0_pixel_switch;
+uniform int fb0_pixel_scale;
+uniform float fb0_pixel_mix;
+uniform float fb0_pixel_brightscale;
+
+uniform int fb1_pixel_switch;
+uniform int fb1_pixel_scale;
+uniform float fb1_pixel_mix;
+uniform float fb1_pixel_brightscale;
+
+uniform int fb2_pixel_switch;
+uniform int fb2_pixel_scale;
+uniform float fb2_pixel_mix;
+uniform float fb2_pixel_brightscale;
+
+uniform int fb3_pixel_switch;
+uniform int fb3_pixel_scale;
+uniform float fb3_pixel_mix;
+uniform float fb3_pixel_brightscale;
+
+uniform int cam1_pixel_switch;
+uniform int cam1_pixel_scale;
+uniform float cam1_pixel_mix;
+uniform float cam1_pixel_brightscale;
+
+uniform int cam2_pixel_switch;
+uniform int cam2_pixel_scale;
+uniform float cam2_pixel_mix;
+uniform float cam2_pixel_brightscale;
 
 
 uniform float ps;
@@ -167,7 +213,7 @@ uniform float qq;
 uniform float ee;
 
 vec2 wrapCoord(vec2 coord){
-    vec2 wrapped=coord;
+    vec2 wrapped=abs(coord);
     wrapped.x=mod(wrapped.x,width);
     wrapped.y=mod(wrapped.y,height);
     return wrapped;
@@ -219,7 +265,9 @@ vec3 fb_hsbop(vec3 c,vec3 hsbx,vec3 huex,vec3 modswitch,float bright_fold_switch
     
     if(c.b>1.0){
         if(bright_fold_switch==1){
-            c.b=fract(c.b);
+            if(c.b>1){
+                c.b=1.0-fract(c.b);
+            }
         }
         if(bright_fold_switch==0){
             c.b=1.0;
@@ -312,7 +360,12 @@ vec3 channel_hsboperations(vec3 c,float hue_x,float sat_x, float bright_x
         if(brightinvert==0){ c.z=1.0-abs(c.z);}
         if(brightinvert==1){c.z=abs(1.0-abs(c.z));}
     }
-
+    
+    /*
+    if(c.b>1){
+        c.b=1;
+    }
+*/
     
     //and over flows
     if(satwrap==1.0){
@@ -391,40 +444,13 @@ vec4 mix_rgb(vec4 ch1, vec4 ch2, int mixswitch,float blend, float lumavalue, flo
 
 //pixelatefunction
 
-//pixelate zones
-//turn this into fucntion
 
-/*
-vec4 pixel_color=vec4(0.0,0.0,0.0,0.0);
-float pixel_scale=floor(ps*(.33*cam1color.r+.5*cam1color.g+.16*cam1color.b));
-//float pixel_scale=floor(ps);
-vec2 pixelScaleCoord=vec2(0.0,0.0);
-pixelScaleCoord.x=scale1*flip.x/1024.0;
-pixelScaleCoord.y=scale1*flip.y/1024.0;
-
-
-
-pixelScaleCoord.x=floor(pixel_scale*pixelScaleCoord.x)/pixel_scale;
-pixelScaleCoord.y=floor(pixel_scale*pixelScaleCoord.y)/pixel_scale;
-
-pixelScaleCoord.x=1024*pixelScaleCoord.x;
-pixelScaleCoord.y=1024*pixelScaleCoord.y;
-
-pixel_color=texture2DRect(cam2, pixelScaleCoord);
-
-
-cam1color=mix(pixel_color,cam1color,.5);
-
-
-*/
-
-
-vec4 pixelate(float scale, vec2 coord,sampler2DRect  pixelTex,float pixelMixxx,vec4 c){
+vec4 pixelate(float scale, vec2 coord,sampler2DRect  pixelTex,float pixelMixxx,vec4 c,float brightscale){
     vec4 pixel_color=texture2DRect(pixelTex,coord);
     vec2 pixelScaleCoord= coord;
     
     //add a switch and control for how much brightness changes stuff up
-    scale=floor(scale*(1+.5*(.33*pixel_color.r+.5*pixel_color.g+.16*pixel_color.b)));
+    scale=floor(scale*((1-brightscale)+(brightscale)*(.33*pixel_color.r+.5*pixel_color.g+.16*pixel_color.b)));
     
     pixelScaleCoord.x=coord.x/width;
     pixelScaleCoord.y=coord.y/height;
@@ -437,41 +463,32 @@ vec4 pixelate(float scale, vec2 coord,sampler2DRect  pixelTex,float pixelMixxx,v
     
     pixel_color=texture2DRect(pixelTex,pixelScaleCoord);
     
-    return mix(pixel_color,c,pixelMixxx);
+    return mix(c,pixel_color,pixelMixxx);
 
 }//endpixelatefunction
 
-vec2 swirl(vec2 coord){
-    vec2 swirlCoord=vec2(0,0);
-    /*
-     //oneversion...from shadertoys
-    float effectRadius=.5;
-    float effectAngle=2*3.14;
-    vec2 center=vec2(width/2,height/2);
-    
-    swirlCoord=coord-center;
-    
-    float len=length(swirlCoord);
-    float angle=atan(swirlCoord.x,swirlCoord.y)+effectAngle*smoothstep(effectRadius,0,len);
-    float radius=length(swirlCoord);
-    
-    swirlCoord=vec2(radius*cos(angle)+center.x,radius*sin(angle)+center.y);
-    */
-    
-    
-    
-    
-    return swirlCoord;
-}//endswirl
 
 
 vec2 rotate(vec2 coord,float theta){
     vec2 center_coord=vec2(coord.x-width/2,coord.y-height/2);
     vec2 rotate_coord=vec2(0,0);
+    float spiral=abs(coord.x+coord.y)/2*width;
+    coord.x=spiral+coord.x;
+    coord.y=spiral+coord.y;
     rotate_coord.x=center_coord.x*cos(theta)-center_coord.y*sin(theta);
     rotate_coord.y=center_coord.x*sin(theta)+center_coord.y*cos(theta);
+    
+    
+ 
+
+   // rotate_coord.x=center_coord.x*cos(theta)-center_coord.y*sin(theta);
+   // rotate_coord.y=center_coord.x*sin(theta)+center_coord.y*cos(theta);
+    
     rotate_coord=rotate_coord+vec2(width/2,height/2);
-    rotate_coord=mod(rotate_coord,vec2(width,height));
+    //rotate_coord=mod(rotate_coord,vec2(width,height));
+    
+    if(abs(rotate_coord.x)>width){rotate_coord.x=abs(width-rotate_coord.x);}
+    if(abs(rotate_coord.y)>height){rotate_coord.y=abs(height-rotate_coord.y);}
     
     return rotate_coord;
     
@@ -497,11 +514,28 @@ void main()
     //center should be a variable sent that displaces where yr center is wished to be
     vec2 center=vec2(width/2,height/2);
     
+    
+    //try some flips
+    
+    
     vec2 fb0_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.y);
     fb0_coord=fb0_rescale.z*fb0_coord;
     fb0_coord.xy=fb0_rescale.xy+fb0_coord.xy+center.xy;
     
+    //fb0_coord=1024-fb0_coord;
+    fb0_coord=rotate(fb0_coord,fb0_rotate);
     fb0_coord=wrapCoord(fb0_coord);
+    
+    
+    //try a smoother flip
+    //this is much better there is less spazzing out
+    
+    if(fb0_hflip_switch==1){
+        if(fb0_coord.x>width/2){fb0_coord.x=abs(width-fb0_coord.x);}
+    }//endifhflip1
+    if(fb0_vflip_switch==1){
+        if(fb0_coord.y>height/2){fb0_coord.y=abs(height-fb0_coord.y);}
+    }//endifvflip1
     vec4 fb0_color = texture2DRect(fb0,fb0_coord);
     
     ///testing the pixelation function
@@ -509,9 +543,10 @@ void main()
     //1 mix value is bypass
     //smaller values for pixel size make larger pixels
     //the way to calculate the actual pixel size is width/index
-    
-    //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color);
-    
+    if(fb0_pixel_switch==1){
+        //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color,.5);
+        fb0_color=pixelate(fb0_pixel_scale,fb0_coord,fb0,fb0_pixel_mix,fb0_color,fb0_pixel_brightscale);
+    }
     
     //testing rotations in different orders
     /*
@@ -526,31 +561,77 @@ void main()
     
     //original flavor
     
-    vec2 fb1_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.x);
+    vec2 fb1_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.y);
     fb1_coord=fb1_rescale.z*fb1_coord;
     fb1_coord.xy=fb1_rescale.xy+fb1_coord.xy+center.xy;
-    fb1_coord=wrapCoord(fb1_coord);
-
-    vec4 fb1_color = texture2DRect(fb1,fb1_coord);
     
-    //testing the rotate function
-    vec2 fb1_swirl_coord=rotate(fb1_coord,qq);
+
+
+    fb1_coord=rotate(fb1_coord,fb1_rotate);
     fb1_coord=wrapCoord(fb1_coord);
-    fb1_color=texture2DRect(fb1,fb1_swirl_coord);
+    
+    if(fb1_hflip_switch==1){
+        if(fb1_coord.x>width/2){fb1_coord.x=abs(width-fb1_coord.x);}
+    }//endifhflip1
+    if(fb1_vflip_switch==1){
+        if(fb1_coord.y>height/2){fb1_coord.y=abs(height-fb1_coord.y);}
+    }//endifvflip1
+
+    
+    vec4 fb1_color=texture2DRect(fb1,fb1_coord);
+    
+    if(fb1_pixel_switch==1){
+        //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color,.5);
+        fb1_color=pixelate(fb1_pixel_scale,fb1_coord,fb1,fb1_pixel_mix,fb1_color,fb1_pixel_brightscale);
+    }
+
+    
     
     vec2 fb2_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.y);
     fb2_coord=fb2_rescale.z*fb2_coord;
     fb2_coord.xy=fb2_rescale.xy+fb2_coord.xy+center.xy;
-    vec4 fb2_color = texture2DRect(fb2,fb2_coord);
     
-    vec2 fb2_swirl_coord=rotate(fb2_coord,ee);
-    fb2_color=texture2DRect(fb2,fb2_swirl_coord);
+   
+    
+    fb2_coord=rotate(fb2_coord,fb2_rotate);
+    fb2_coord=wrapCoord(fb2_coord);
+    
+    if(fb2_hflip_switch==1){
+        if(fb2_coord.x>width/2){fb2_coord.x=abs(width-fb2_coord.x);}
+    }//endifhflip1
+    if(fb2_vflip_switch==1){
+        if(fb2_coord.y>height/2){fb2_coord.y=abs(height-fb2_coord.y);}
+    }//endifvflip1
+
+    
+    vec4 fb2_color=texture2DRect(fb2,fb2_coord);
+    
+    if(fb2_pixel_switch==1){
+        //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color,.5);
+        fb2_color=pixelate(fb2_pixel_scale,fb2_coord,fb2,fb2_pixel_mix,fb2_color,fb2_pixel_brightscale);
+    }
     
     vec2 fb3_coord=vec2(texCoordVarying.x-center.x,texCoordVarying.y-center.y);
     fb3_coord=fb3_rescale.z*fb3_coord;
     fb3_coord.xy=fb3_rescale.xy+fb3_coord.xy+center.xy;
     
+    fb3_coord=rotate(fb3_coord,fb3_rotate);
+    fb3_coord=wrapCoord(fb3_coord);
+    
+    if(fb3_hflip_switch==1){
+        if(fb3_coord.x>width/2){fb3_coord.x=abs(width-fb3_coord.x);}
+    }//endifhflip1
+    if(fb3_vflip_switch==1){
+        if(fb3_coord.y>height/2){fb3_coord.y=abs(height-fb3_coord.y);}
+    }//endifvflip1
+
+    
     vec4 fb3_color = texture2DRect(fb3,fb3_coord);
+    
+    if(fb3_pixel_switch==1){
+        //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color,.5);
+        fb3_color=pixelate(fb3_pixel_scale,fb3_coord,fb3,fb3_pixel_mix,fb3_color,fb3_pixel_brightscale);
+    }
     
     vec4 syphon_color=texture2DRect(syphon,texCoordVarying);
     
@@ -563,34 +644,45 @@ void main()
     
     
   
-    //so we take flip from texCoordVarying so that then we can do some switching
-    //if we want to flip or rotate or whatnot
-    //same thing here with remapping as the framebuffers maybe?
-    vec2 ch1_flip=texCoordVarying;
-    vec2 ch2_flip=texCoordVarying;
     
+    vec2 cam1_coord=texCoordVarying*cam1_scale;
     
-    vec2 flip=texCoordVarying;
+    if(cam1_hflip_switch==1){
+        if(texCoordVarying.x>width/2){cam1_coord.x=cam1_scale*abs(width-texCoordVarying.x);}
+    }//endifhflip1
+    if(cam1_vflip_switch==1){
+        if(texCoordVarying.y>height/2){cam1_coord.y=cam1_scale*abs(height-texCoordVarying.y);}
 
-   
+    }//endifvflip1
     
+    vec4 cam1color=vec4(0.0,0.0,0.0,0.0);
     
-    
-    
-    
-   
-    
-       vec4 cam1color=vec4(0.0,0.0,0.0,0.0);
-    if((scale1*flip.x<cam1dimensions.x)&&(scale1*flip.y<cam1dimensions.y)){
-        cam1color=texture2DRect(cam1,vec2(scale1*flip.x,scale1*flip.y));
+    if(texCoordVarying.x*cam1_scale<cam1dimensions.x){
+        if(texCoordVarying.y*cam1_scale<cam1dimensions.y){
+            cam1color=texture2DRect(cam1,vec2(cam1_coord.x,cam1_coord.y));
+        }
     }
+    if(cam1_pixel_switch==1){
+       
+        cam1color=pixelate(cam1_pixel_scale,cam1_coord,cam1,cam1_pixel_mix,cam1color,cam1_pixel_brightscale);
+    }
+
     
+    
+    vec2 cam2_coord=texCoordVarying*cam2_scale;
     vec4 cam2color=vec4(0.0,0.0,0.0,0.0);
 
-    
-    if((scale1*flip.x<cam2dimensions.x)&&(scale1*flip.y<cam2dimensions.y)){
-        cam2color=texture2DRect(cam2,vec2(scale1*flip.x,scale1*flip.y));
+    if(texCoordVarying.x*cam2_scale<cam2dimensions.x){
+        if(texCoordVarying.y*cam2_scale<cam2dimensions.y){
+            cam2color=texture2DRect(cam2,vec2(cam2_coord.x,cam2_coord.y));
+        }
     }
+    if(cam2_pixel_switch==1){
+        
+        cam2color=pixelate(cam2_pixel_scale,cam2_coord,cam2,cam2_pixel_mix,cam2color,cam2_pixel_brightscale);
+    }
+
+    
     
     
     
