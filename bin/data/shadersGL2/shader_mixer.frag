@@ -157,6 +157,10 @@ uniform int cam1_hflip_switch;
 uniform int cam1_vflip_switch;
 
 
+uniform int cam2_hflip_switch;
+uniform int cam2_vflip_switch;
+
+
 uniform int fb0_hflip_switch;
 uniform int fb0_vflip_switch;
 
@@ -670,6 +674,13 @@ void main()
     
     
     vec2 cam2_coord=texCoordVarying*cam2_scale;
+    
+    if(cam2_hflip_switch==1){
+        if(texCoordVarying.x>width/2){cam2_coord.x=cam2_scale*abs(width-texCoordVarying.x);}
+    }//endifhflip2
+    if(cam2_vflip_switch==1){
+        if(texCoordVarying.y>height/2){cam2_coord.y=cam1_scale*abs(height-texCoordVarying.y);}
+    }//endifvflip2
     vec4 cam2color=vec4(0.0,0.0,0.0,0.0);
 
     if(texCoordVarying.x*cam2_scale<cam2dimensions.x){
