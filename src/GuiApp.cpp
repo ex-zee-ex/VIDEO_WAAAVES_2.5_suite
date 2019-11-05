@@ -706,7 +706,7 @@ void GuiApp::onButtonEvent(ofxDatGuiButtonEvent e)
     if(e.target->getLabel()=="cam1 v mirror"){cam1_vflip_switch=!cam1_vflip_switch;}
     
     if(e.target->getLabel()=="cam2 h mirror"){cam2_hflip_switch=!cam2_hflip_switch;}
-    if(e.target->getLabel()=="cam2 v mirror"){cam2_vflip_switch=!cam1_vflip_switch;}
+    if(e.target->getLabel()=="cam2 v mirror"){cam2_vflip_switch=!cam2_vflip_switch;}
     
     if(e.target->getLabel()=="fb0 h mirror"){fb0_hflip_switch=!fb0_hflip_switch;}
     if(e.target->getLabel()=="fb0 v mirror"){fb0_vflip_switch=!fb0_vflip_switch;}
