@@ -1,4 +1,4 @@
-# VIDEO_WAAAVES_1.5
+# VIDEO_WAAAVES_1.75
 a video mixer, framebuffer delay, and feedback resynthesis engine built in openFrameworks https://openframeworks.cc/
 
 ![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/hypercuuube.png)
