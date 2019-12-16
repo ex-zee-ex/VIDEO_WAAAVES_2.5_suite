@@ -71,3 +71,13 @@ https://vimeo.com/andreijay for many examples of this program in action.
 
 
 if this program feels too huge I'd recommend trying out the scaled down https://github.com/ex-zee-ex/lil_waaaves for regular sized operating systems or if you're comfortable with raspberry pi try the even more scaled down https://github.com/ex-zee-ex/waaaave_pool
+
+very common question:
+HOW DO I GET AN ANaLOG VidEO SIGNAL INTO THIS CHAIN my DOGGG???
+ok so that is kind of medium an easy question to answer!  I end up using osx primarily for this purpose because it has some very handy shortcuts for video streaming and processing so I'll describe the chain that I use:  
+
+1. first i use a black magic intensity shuttle for capturing analog video inputs.  this can also capture hdmi input as well!  i recommend black magic anything for capturing these days as they are seem to be the best options for quality for the price but the intensity shuttle is def the most flexible and affordable.
+2. i use black syphon which can be found here https://vdmx.vidvox.net/blog/black-syphon it is a very handy program for bypassing a lot of the somewhat inconsistent and tangled driver incompatiblity things that go along with routing black magic inputs to programs.  black syphon is set up to bind a black magic capture as a texture that then any syphon enabled program can use.  its great.  a thing to notice is that sometimes brightness levels are a bit off when capturing and either you can go into the black magic desktop video software and edit some of the capture quality on that end (depending on what kind of input you are using) and/or go into the channel operations in video_waaaves and mess around with the values there.
+
+wow that was really easy!  but what if i'm on windows or linux? ok so it will be a little more complicated.  there are openframeworks addons https://github.com/elliotwoods/ofxBlackmagic2,https://github.com/fred-dev/ofxBlackmagic, and honestly a bunch more too that can be used to capture the black magic directly into openFrameworks.  I don't have time to test and install these but I think they are pretty simple for linux at least! if you need something like this to happen and you are not able to do this yourself all I can really say is that I'm available for hire for projects exactly like this!
+ 
