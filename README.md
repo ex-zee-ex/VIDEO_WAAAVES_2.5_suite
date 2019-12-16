@@ -61,3 +61,6 @@ https://youtu.be/PYapmZSiSE4 is a handy dandy video tutorial on how to get start
 https://youtu.be/LNDmF9-AcW8 on how to use the audio visualizer and midi mapping functions
 
 https://vimeo.com/andreijay for many examples of this program in action.  
+
+
+if this program feels too huge I'd recommend trying out the scaled down https://github.com/ex-zee-ex/lil_waaaves for regular sized operating systems or if you're comfortable with raspberry pi try the even more scaled down https://github.com/ex-zee-ex/waaaave_pool
