@@ -331,14 +331,14 @@ vec3 channel_hsboperations(vec3 c,float hue_x,float sat_x, float bright_x
     
     //powmaps
     if(hue_powmaptoggle==1){
-        c.x=fract(pow((c.x),hue_powmap));
+        c.x=pow((c.x),hue_powmap);
     }
     
     if(sat_powmaptoggle==1){
-        c.y=fract(pow((c.y),sat_powmap));
+        c.y=pow((c.y),sat_powmap);
     }
     if(bright_powmaptoggle==1){
-        c.z=clamp(fract(pow((c.z),bright_powmap)),0.0,1.0);
+        c.z=pow((c.z),bright_powmap);
     }
 
     
