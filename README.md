@@ -7,7 +7,7 @@ requires ofxSyphon https://github.com/astellato/ofxSyphon,
 ofxMidi https://github.com/danomatika/ofxMidi, 
 and ofxDatGui https://github.com/braitsch/ofxDatGui addons
 
-for windows and linux check the noSyphon folder for alternate versions of some files to copy over into the src folder to get u up and running in syphon free zones
+for windows and linux check the noSyphon folder for alternate versions of some files to copy over into the src folder to get u up and running in syphon free zones.  though apparantly the code will still compile on linux and windows if you just install the ofxSyphon addon over there!  it just will add nothing to the functionality
 
 ![Image description](https://github.com/ex-zee-ex/lil_waaaves/blob/master/lil_waaaves_0/Screen%20Shot%202019-11-23%20at%2011.47.25%20AM.png)
 
