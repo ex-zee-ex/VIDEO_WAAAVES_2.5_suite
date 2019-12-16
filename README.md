@@ -9,12 +9,13 @@ and ofxDatGui https://github.com/braitsch/ofxDatGui addons
 
 for windows and linux check the noSyphon folder for alternate versions of some files to copy over into the src folder to get u up and running in syphon free zones
 
-![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/swirl.png)
+![Image description](https://github.com/ex-zee-ex/lil_waaaves/blob/master/lil_waaaves_0/Screen%20Shot%202019-11-23%20at%2011.47.25%20AM.png)
 
-if you have never used oF and/or Xcode before here are some troubleshooting tips to try before contacting me
-1. the entire folder structure needs to be intact and moved into the apps/myApps folder within the openframeworks folder
-2. try running project generator and importing this folder (with the abovementioned addons) if theres still errors
-3. https://openframeworks.cc/setup/xcode/ has some advice on how to troubleshoot troublesome addons as well so check this out too!
+there are some potentially wonky things that can happen installing this!
+0. if you're brand new to openFrameworks make sure that you've run through all the steps to get oF up and running and have tested some of the examples before installing video_waaaves.
+1. when you unzip the folder after it has been downloaded the unarchiver program you used may have added an extra folder or two in process (like lil_waaaves_master->lil_waaaves->lil_waaaves_0->all the actual folder structure stuffs).  but openFrameworks has a real pathology about folder structures and is going to go kinda bonkers on you and throw some errors about not being able to find some necessary header files for compiling if you put the folder with all the code in it in several nested folders within myApps.  So check the folder structure in the picture above and make sure that matches up with what is happening in your folders!
+2.  sometimes xcode will try to make duplicate xcodeproj files for this project. (i'm not sure if other ides will do this as well but it seems possible if not probable)  you can see in the picture above that there is a lil_waaaaves_0.xcodeproj and a Test_ing0.xcodeproj.  well the Test_ing0.xcodeproj is the one you need to double click on to open up in xcode, you are pretty much guaranteed some errors in yr build if you run the video_waaaves.xcodeproj!  check the youtube tutorial on getting projects downloaded from github running in openFrameworks for like animated details on this as well(https://www.youtube.com/playlist?list=PLTAAQQpCNd6Ss1fr4toVfyeCEjJ7qYKNr is a handy dandy video guide on how to get this up and running on your computer which seems to be especially helpful for anyone who is brand new to openFrameworks)!
+3.  Apparantly running this project in newer versions of xcode (like 11.0 onward) will throw a "CodeSign Error" and adding --deep to "other CodeSign Flags" in "build settings" can fix this
 
 ![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/vlcsnap-2019-08-10-22h55m38s489.png)
 
