@@ -46,21 +46,32 @@ https://vimeo.com/andreijay for many examples of this program in action.
 
 midi cc list for video waaaves!
 ch1 hue  20
+
 ch1 saturation  21
+
 ch1 brightness  22
 
+
 blur -25
+
 sharpen 24
 
 fb0 key V 28
+
 fb0 mix 29
+
 fb0 delay 30
 
 fb0 x  4
+
 fb0 y  3
+
 fb0 z  12
+
 fb0 rotate 11
+
 fb0 hue 5
+
 fb0 sat 2
 fb0 bright 13
 fb0 huemod 16-not bipolar
