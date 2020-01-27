@@ -73,24 +73,37 @@ fb0 rotate 11
 fb0 hue 5
 
 fb0 sat 2
+
 fb0 bright 13
+
 fb0 huemod 16-not bipolar
+
 fb0 hueoffset 10
+
 fb0 huelfo 17
 
-
-
 fb1 key V 31
+
 fb1 mix 27  
+
 fb1 delay 26
 
 fb0 x  6
+
 fb0 y  1
+
 fb0 z  14
+
 fb0 rotate 9
+
 fb0 hue 7
+
 fb0 sat 0
+
 fb0 bright 15
+
 fb0 huemod 18-not bipolar
+
 fb0 hueoffset 8
+
 fb0 huelfo 19
