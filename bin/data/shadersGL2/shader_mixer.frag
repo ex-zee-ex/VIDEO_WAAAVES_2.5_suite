@@ -204,26 +204,23 @@ uniform int cam2_pixel_scale;
 uniform float cam2_pixel_mix;
 uniform float cam2_pixel_brightscale;
 
+uniform int fb0_toroid_switch;
+uniform int fb1_toroid_switch;
+uniform int fb2_toroid_switch;
+uniform int fb3_toroid_switch;
 
 uniform float ps;
 
 uniform vec2 cam1dimensions;
 uniform vec2 cam2dimensions;
 
-uniform float pp=1.0;
+//uniform float pp=1.0;
 
 //just some generice testing varibles
-uniform float qq;
-uniform float ee;
+//uniform float qq;
+//uniform float ee;
 
-vec2 wrapCoord(vec2 coord){
-    vec2 wrapped=abs(coord);
-    wrapped.x=mod(wrapped.x,width);
-    wrapped.y=mod(wrapped.y,height);
-    return wrapped;
-    
 
-}//endwrapcoord
 
 vec3 rgb2hsv(vec3 c)
 {
@@ -428,6 +425,7 @@ vec4 mix_rgb(vec4 ch1, vec4 ch2, int mixswitch,float blend, float lumavalue, flo
     //keyit
     if(mixswitch==2){
     
+        /*
         if((bright1<lumavalue+lumathresh)&&(bright1>lumavalue-lumathresh)){
             mixout=mix(ch1,ch2,blend);
         
@@ -435,7 +433,14 @@ vec4 mix_rgb(vec4 ch1, vec4 ch2, int mixswitch,float blend, float lumavalue, flo
         else{
             mixout=ch2;
         }
-    
+         */
+        
+        if(bright1<lumavalue){
+            mixout=ch2;
+        }
+        else{
+            mixout=mix(ch1,ch2,blend);
+        }
     
     }//keyit
     
@@ -483,21 +488,45 @@ vec2 rotate(vec2 coord,float theta){
     rotate_coord.y=center_coord.x*sin(theta)+center_coord.y*cos(theta);
     
     
- 
-
-   // rotate_coord.x=center_coord.x*cos(theta)-center_coord.y*sin(theta);
-   // rotate_coord.y=center_coord.x*sin(theta)+center_coord.y*cos(theta);
+    
+    
+    // rotate_coord.x=center_coord.x*cos(theta)-center_coord.y*sin(theta);
+    // rotate_coord.y=center_coord.x*sin(theta)+center_coord.y*cos(theta);
     
     rotate_coord=rotate_coord+vec2(width/2,height/2);
     //rotate_coord=mod(rotate_coord,vec2(width,height));
     
-    if(abs(rotate_coord.x)>width){rotate_coord.x=abs(width-rotate_coord.x);}
-    if(abs(rotate_coord.y)>height){rotate_coord.y=abs(height-rotate_coord.y);}
+    // if(abs(rotate_coord.x)>width){rotate_coord.x=abs(width-rotate_coord.x);}
+    // if(abs(rotate_coord.y)>height){rotate_coord.y=abs(height-rotate_coord.y);}
     
     return rotate_coord;
     
-
+    
 }//endrotate
+
+
+vec2 wrapCoord(vec2 coord){
+    
+    
+    if(abs(coord.x)>width){coord.x=abs(width-coord.x);}
+    if(abs(coord.y)>height){coord.y=abs(height-coord.y);}
+    
+    // if(coord.x>width){coord.x=abs(width-coord.x);}
+    // if(coord.y>height){coord.y=abs(height-coord.y);}
+    
+    // if(coord.x<0){coord.x=abs(coord.x);}
+    coord.x=mod(coord.x,width);
+    coord.y=mod(coord.y,height);
+    
+    /*
+     vec2 wrapped=abs(coord);
+     wrapped.x=mod(wrapped.x,width);
+     wrapped.y=mod(wrapped.y,height);
+     return wrapped;
+     */
+    
+    return coord;
+}
 
 void main()
 {
@@ -528,7 +557,10 @@ void main()
     
     //fb0_coord=1024-fb0_coord;
     fb0_coord=rotate(fb0_coord,fb0_rotate);
-    fb0_coord=wrapCoord(fb0_coord);
+    
+    if(fb0_toroid_switch==1){
+        fb0_coord=wrapCoord(fb0_coord);
+    }
     
     
     //try a smoother flip
@@ -541,6 +573,10 @@ void main()
         if(fb0_coord.y>height/2){fb0_coord.y=abs(height-fb0_coord.y);}
     }//endifvflip1
     vec4 fb0_color = texture2DRect(fb0,fb0_coord);
+    
+    if(abs(fb0_coord.x-width/2)>=width/2||abs(fb0_coord.y-height/2)>=height/2){
+        fb0_color=vec4(0,0,0,255);
+    }
     
     ///testing the pixelation function
     //0 mix value is pure pixel
@@ -572,7 +608,10 @@ void main()
 
 
     fb1_coord=rotate(fb1_coord,fb1_rotate);
-    fb1_coord=wrapCoord(fb1_coord);
+    
+    if(fb1_toroid_switch==1){
+        fb1_coord=wrapCoord(fb1_coord);
+    }
     
     if(fb1_hflip_switch==1){
         if(fb1_coord.x>width/2){fb1_coord.x=abs(width-fb1_coord.x);}
@@ -583,6 +622,10 @@ void main()
 
     
     vec4 fb1_color=texture2DRect(fb1,fb1_coord);
+    
+    if(abs(fb1_coord.x-width/2)>=width/2||abs(fb1_coord.y-height/2)>=height/2){
+        fb1_color=vec4(0,0,0,255);
+    }
     
     if(fb1_pixel_switch==1){
         //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color,.5);
@@ -598,7 +641,10 @@ void main()
    
     
     fb2_coord=rotate(fb2_coord,fb2_rotate);
-    fb2_coord=wrapCoord(fb2_coord);
+    
+    if(fb2_toroid_switch==1){
+        fb2_coord=wrapCoord(fb2_coord);
+    }
     
     if(fb2_hflip_switch==1){
         if(fb2_coord.x>width/2){fb2_coord.x=abs(width-fb2_coord.x);}
@@ -610,6 +656,10 @@ void main()
     
     vec4 fb2_color=texture2DRect(fb2,fb2_coord);
     
+    if(abs(fb2_coord.x-width/2)>=width/2||abs(fb2_coord.y-height/2)>=height/2){
+        fb2_color=vec4(0,0,0,255);
+    }
+    
     if(fb2_pixel_switch==1){
         //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color,.5);
         fb2_color=pixelate(fb2_pixel_scale,fb2_coord,fb2,fb2_pixel_mix,fb2_color,fb2_pixel_brightscale);
@@ -620,7 +670,10 @@ void main()
     fb3_coord.xy=fb3_rescale.xy+fb3_coord.xy+center.xy;
     
     fb3_coord=rotate(fb3_coord,fb3_rotate);
-    fb3_coord=wrapCoord(fb3_coord);
+    
+    if(fb3_toroid_switch==1){
+        fb3_coord=wrapCoord(fb3_coord);
+    }
     
     if(fb3_hflip_switch==1){
         if(fb3_coord.x>width/2){fb3_coord.x=abs(width-fb3_coord.x);}
@@ -631,6 +684,10 @@ void main()
 
     
     vec4 fb3_color = texture2DRect(fb3,fb3_coord);
+    
+    if(abs(fb2_coord.x-width/2)>=width/2||abs(fb2_coord.y-height/2)>=height/2){
+        fb2_color=vec4(0,0,0,255);
+    }
     
     if(fb3_pixel_switch==1){
         //fb0_color=pixelate(64,fb0_coord,fb0,.25,fb0_color,.5);

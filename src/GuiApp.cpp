@@ -66,20 +66,15 @@ void GuiApp::setup(){
     fb0blendslider=fb0mix_thingsfolder->addSlider("fb0 mixamnt",-5.0,5.0);
     fb0brightkeyamountslider=fb0mix_thingsfolder->addSlider("fb0brightkeyamnt",0.00,1.00);
     fb0brightkeythreshslider=fb0mix_thingsfolder->addSlider("fb0brightkeythreshamnt",0.00,1.00);
-    
-    
-    
-    fb0brightkeyamountslider->bind(fb0lumakeyvalue);
-    fb0brightkeythreshslider->bind(fb0lumakeythresh);
     fb0delayamountslider=fb0mix_thingsfolder->addSlider("fb0 delay amnt",0,fbob-1);
-    
-    fb0blendslider->bind(fb0blend);
-  
-    fb0delayamountslider->bind(fb0delayamnt);
-    
     fb0_hflip_toggle=fb0mix_thingsfolder->addToggle("fb0 h mirror",false);
     fb0_vflip_toggle=fb0mix_thingsfolder->addToggle("fb0 v mirror",false);
+    fb0_toroid_toggle=fb0mix_thingsfolder->addToggle("fb0 toroid",true);
     
+    fb0blendslider->bind(fb0blend);
+    fb0delayamountslider->bind(fb0delayamnt);
+    fb0brightkeyamountslider->bind(fb0lumakeyvalue);
+    fb0brightkeythreshslider->bind(fb0lumakeythresh);
     
 
     
@@ -93,20 +88,16 @@ void GuiApp::setup(){
     fb1blendslider=fb1mix_thingsfolder->addSlider("fb1 mixamnt",-5.0,5.0);
     fb1brightkeyamountslider=fb1mix_thingsfolder->addSlider("fb1mixbrightkeyamnt",0.00,1.00);
     fb1brightkeythreshslider=fb1mix_thingsfolder->addSlider("fb1mixbrightkeythreshamnt",0.00,1.00);
-    
+    fb1delayamountslider=fb1mix_thingsfolder->addSlider("fb1 delay amnt",0,fbob-1);
+    fb1_hflip_toggle=fb1mix_thingsfolder->addToggle("fb1 h mirror",false);
+    fb1_vflip_toggle=fb1mix_thingsfolder->addToggle("fb1 v mirror",false);
+    fb1_toroid_toggle=fb1mix_thingsfolder->addToggle("fb1 toroid",true);
+
+    fb1blendslider->bind(fb1blend);
+    fb1delayamountslider->bind(fb1delayamnt);
     fb1brightkeyamountslider->bind(fb1lumakeyvalue);
     fb1brightkeythreshslider->bind(fb1lumakeythresh);
     
-    fb1blendslider->bind(fb1blend);
-    
-    fb1delayamountslider=fb1mix_thingsfolder->addSlider("fb1 delay amnt",0,fbob-1);
-    
-    fb1delayamountslider->bind(fb1delayamnt);
-    
-    fb1_hflip_toggle=fb1mix_thingsfolder->addToggle("fb1 h mirror",false);
-    fb1_vflip_toggle=fb1mix_thingsfolder->addToggle("fb1 v mirror",false);
-
-
     
     ///FB2mixcontrol
     guisignal->addDropdown("FB2_mixoptions", FB2mixoptions);
@@ -115,20 +106,17 @@ void GuiApp::setup(){
     fb2blendslider=fb2mix_thingsfolder->addSlider("fb2 mixamnt",-5.0,5.0);
     fb2brightkeyamountslider=fb2mix_thingsfolder->addSlider("fb2mixbrightkeyamnt",0.00,1.00);
     fb2brightkeythreshslider=fb2mix_thingsfolder->addSlider("fb2mixbrightkeythreshamnt",0.00,1.00);
-    
-    fb2brightkeyamountslider->bind(fb2lumakeyvalue);
-    fb2brightkeythreshslider->bind(fb2lumakeythresh);
-    
-    fb2blendslider->bind(fb2blend);
-    
     fb2delayamountslider=fb2mix_thingsfolder->addSlider("fb2 delay amnt",0,fbob-1);
-    
-    fb2delayamountslider->bind(fb2delayamnt);
-    
     fb2_hflip_toggle=fb2mix_thingsfolder->addToggle("fb2 h mirror",false);
     fb2_vflip_toggle=fb2mix_thingsfolder->addToggle("fb2 v mirror",false);
+    fb2_toroid_toggle=fb2mix_thingsfolder->addToggle("fb2 toroid",true);
 
-    
+    fb2blendslider->bind(fb2blend);
+    fb2brightkeyamountslider->bind(fb2lumakeyvalue);
+    fb2brightkeythreshslider->bind(fb2lumakeythresh);
+    fb2delayamountslider->bind(fb2delayamnt);
+
+
     
     ///FB3mixcontrol
     guisignal->addDropdown("FB3_mixoptions", FB3mixoptions);
@@ -137,19 +125,15 @@ void GuiApp::setup(){
     fb3blendslider=fb3mix_thingsfolder->addSlider("fb3 mixamnt",-5.0,5.0);
     fb3brightkeyamountslider=fb3mix_thingsfolder->addSlider("fb3mixbrightkeyamnt",0.00,1.00);
     fb3brightkeythreshslider=fb3mix_thingsfolder->addSlider("fb3mixbrightkeythreshamnt",0.00,1.00);
-    
-    fb3brightkeyamountslider->bind(fb3lumakeyvalue);
-    fb3brightkeythreshslider->bind(fb3lumakeythresh);
-    
-    fb3blendslider->bind(fb3blend);
-    
     fb3delayamountslider=fb3mix_thingsfolder->addSlider("fb3 delay amnt",0,fbob-1);
-    
-    fb3delayamountslider->bind(fb3delayamnt);
-
     fb3_hflip_toggle=fb3mix_thingsfolder->addToggle("fb3 h mirror",false);
     fb3_vflip_toggle=fb3mix_thingsfolder->addToggle("fb3 v mirror",false);
-
+    fb3_toroid_toggle=fb3mix_thingsfolder->addToggle("fb3 toroid",true);
+    
+    fb3blendslider->bind(fb3blend);
+    fb3brightkeyamountslider->bind(fb3lumakeyvalue);
+    fb3brightkeythreshslider->bind(fb3lumakeythresh);
+    fb3delayamountslider->bind(fb3delayamnt);
     
     
   
@@ -167,6 +151,9 @@ void GuiApp::setup(){
     cam2_scale_slider=guisignal->addSlider("cam2 scale",0,2);
     cam2_scale_slider->bind(cam2_scale);
     
+    syphon_scale_slider=guisignal->addSlider("syphon scale",0,2);
+    syphon_scale_slider->bind(syphon_scale);
+
     
     cam1_hflip_toggle=guisignal->addToggle("cam1 h mirror",false);
     cam1_vflip_toggle=guisignal->addToggle("cam1 v mirror",false);
@@ -174,6 +161,12 @@ void GuiApp::setup(){
     cam2_hflip_toggle=guisignal->addToggle("cam2 h mirror",false);
     cam2_vflip_toggle=guisignal->addToggle("cam2 v mirror",false);
 
+    x_skew_amount_slider=guisignal->addSlider("x_skew",-3.14/8,3.14/8);
+    x_skew_amount_slider->bind(x_skew);
+    
+    y_skew_amount_slider=guisignal->addSlider("y_skew",-3.14/8,3.14/8);
+    y_skew_amount_slider->bind(y_skew);
+    
     syphonOutputtoggle=guisignal->addToggle("syphon out",false);
     tetrahedron_switch_toggle=guisignal->addToggle("tetrahedron",false);
     guisignal->onDropdownEvent(this, &GuiApp::onDropdownEvent);
@@ -203,9 +196,9 @@ void GuiApp::setup(){
     channel1brightslider= channel1_thingsfolder->addSlider("ch1brightness ", -5.0, 5.0);
     
     
-    channel1hueinverttoggle=channel1_thingsfolder->addToggle("ch1hueinvert",false);
-    channel1satinverttoggle=channel1_thingsfolder->addToggle("ch1satinvert",false);
-    channel1brightinverttoggle=channel1_thingsfolder->addToggle("ch1brightinvert",false);
+    channel1hueinverttoggle=channel1_thingsfolder->addToggle("ch1hue_altinvert",true);
+    channel1satinverttoggle=channel1_thingsfolder->addToggle("ch1sat_altinvert",true);
+    channel1brightinverttoggle=channel1_thingsfolder->addToggle("ch1bright_altinvert",true);
     
     channel1satwraptoggle=channel1_thingsfolder->addToggle("ch1satwrap",false);
     channel1brightwraptoggle=channel1_thingsfolder->addToggle("ch1brightwrap",false);
@@ -230,9 +223,9 @@ void GuiApp::setup(){
     channel2saturationslider= channel2_thingsfolder->addSlider("ch2saturation ", -5.0, 5.0);
     channel2brightslider= channel2_thingsfolder->addSlider("ch2brightness ", -5.0, 5.0);
     
-    channel2hueinverttoggle=channel2_thingsfolder->addToggle("ch2hueinvert",false);
-    channel2satinverttoggle=channel2_thingsfolder->addToggle("ch2satinvert",false);
-    channel2brightinverttoggle=channel2_thingsfolder->addToggle("ch2brightinvert",false);
+    channel2hueinverttoggle=channel2_thingsfolder->addToggle("ch2hue_altinvert",true);
+    channel2satinverttoggle=channel2_thingsfolder->addToggle("ch2sat_altinvert",true);
+    channel2brightinverttoggle=channel2_thingsfolder->addToggle("ch2bright_altinvert",true);
 
     channel2satwraptoggle=channel2_thingsfolder->addToggle("ch2satwrap",false);
     channel2brightwraptoggle=channel2_thingsfolder->addToggle("ch2brightwrap",false);
@@ -467,7 +460,7 @@ void GuiApp::setup(){
     fb0_pixel_toggle=fb0_pixelfolder->addToggle("fb0 pixel switch",0);
     fb0_pixel_scale_slider=fb0_pixelfolder->addSlider("quantisation",0,256);
     fb0_pixel_mix_slider=fb0_pixelfolder->addSlider("mix",-2,2);
-    fb0_pixel_brightscale_slider=fb0_pixelfolder->addSlider("bright scale",-10,10);
+    fb0_pixel_brightscale_slider=fb0_pixelfolder->addSlider("bright scale",-5,5);
 
 
     fb0_pixel_scale_slider->bind(fb0_pixel_scale);
@@ -708,6 +701,12 @@ void GuiApp::onButtonEvent(ofxDatGuiButtonEvent e)
     if(e.target->getLabel()=="cam2 h mirror"){cam2_hflip_switch=!cam2_hflip_switch;}
     if(e.target->getLabel()=="cam2 v mirror"){cam2_vflip_switch=!cam2_vflip_switch;}
     
+    if(e.target->getLabel()=="fb1 toroid"){fb1_toroid_switch=!fb1_toroid_switch;}
+    if(e.target->getLabel()=="fb0 toroid"){fb0_toroid_switch=!fb0_toroid_switch;}
+    
+    if(e.target->getLabel()=="fb2 toroid"){fb2_toroid_switch=!fb2_toroid_switch;}
+    if(e.target->getLabel()=="fb3 toroid"){fb3_toroid_switch=!fb3_toroid_switch;}
+    
     if(e.target->getLabel()=="fb0 h mirror"){fb0_hflip_switch=!fb0_hflip_switch;}
     if(e.target->getLabel()=="fb0 v mirror"){fb0_vflip_switch=!fb0_vflip_switch;}
     
@@ -769,16 +768,16 @@ void GuiApp::onButtonEvent(ofxDatGuiButtonEvent e)
         ch1bright_powmaptoggle =! ch1bright_powmaptoggle;
     }
     
-    if(e.target->getLabel() == "ch1hueinvert"){
+    if(e.target->getLabel() == "ch1hue_altinvert"){
         ch1hue_powmaptoggle =! ch1hue_powmaptoggle;
     }
     
-    if(e.target->getLabel() == "ch1satinvert"){
+    if(e.target->getLabel() == "ch1sat_altinvertt"){
         ch1sat_inverttoggle =! ch1sat_inverttoggle;
     }
     
     
-    if(e.target->getLabel() == "ch1brightinvert"){
+    if(e.target->getLabel() == "ch1bright_altinvert"){
         ch1bright_inverttoggle =! ch1bright_inverttoggle;
     }
 
@@ -819,16 +818,16 @@ void GuiApp::onButtonEvent(ofxDatGuiButtonEvent e)
     }
     
     
-    if(e.target->getLabel() == "ch2hueinvert"){
+    if(e.target->getLabel() == "ch2hue_altinvert"){
         ch2hue_powmaptoggle =! ch2hue_powmaptoggle;
     }
     
-    if(e.target->getLabel() == "ch2satinvert"){
+    if(e.target->getLabel() == "ch2sat_altinvert"){
         ch2sat_inverttoggle =! ch2sat_inverttoggle;
     }
     
     
-    if(e.target->getLabel() == "ch2brightinvert"){
+    if(e.target->getLabel() == "ch2bright_altinvert"){
         ch2bright_inverttoggle =! ch2bright_inverttoggle;
     }
 

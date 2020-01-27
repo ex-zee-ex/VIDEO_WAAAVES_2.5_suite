@@ -39,9 +39,6 @@
 
 #include <iostream>
 
-ofPolyline tetrahedron;
-ofPolyline pnt_line;
-
 float aa=0.0;
 float ss=0.0;
 float dd=0.0;
@@ -52,8 +49,8 @@ float jj=1;
 float kk=1;
 float ll=.05;
 
-float qq=0;
-float ee=0;
+float qq=1.0;
+float ee=100;
 
 float oo=1.0;
 int ii=1;
@@ -74,11 +71,6 @@ float c6=1;
 float c7=1;
 float c8=1;
 
-float amp=0;
-
-float alpha=255;
-
-float cam1_scale=1;
 float scale1=1;
 float scale2=1;
 
@@ -130,18 +122,18 @@ void incIndex()  // call this every frame to calc the offset eeettt
 //--------------------------------------------------------------
 void ofApp::setup() {
     
-    ofSetFrameRate(30);
+    ofSetFrameRate(60);
    // ofDisableAlphaBlending();
     //ofSetVerticalSync(FALSE);
     
     //syphon input
     
     //mClient.set("","Black Syphon");
-   // mClient.setup();
+    //mClient.setup();
     //mClient.set("","Syphoner");
     
     //syphonoutput
-   // mainOutputSyphonServer.setName("VIDEO_WAAAVES_screen");
+    //mainOutputSyphonServer.setName("VIDEO_WAAAVES_screen");
     
     
     
@@ -194,8 +186,6 @@ void ofApp::setup() {
     }else{
    
         shader_mixer.load("shadersGL2/shader_mixer");
-        shader_blur.load("shadersGL2/shader_blur");
-        shader_sharpen.load("shadersGL2/shader_sharpen");
         
         //shader_displace.load("shadersGL2/shader_displace");
     }
@@ -206,8 +196,8 @@ void ofApp::setup() {
  
     fbo_draw.allocate(ofGetWidth(), ofGetHeight());
     fbo_feedback.allocate(ofGetWidth(), ofGetHeight());
-      //  syphonTexture.allocate(ofGetWidth(), ofGetHeight());
-    fbo_blur.allocate(ofGetWidth(), ofGetHeight());
+        syphonTexture.allocate(ofGetWidth(), ofGetHeight());
+   
     
     fbo_feedback.begin();
 
@@ -216,12 +206,8 @@ void ofApp::setup() {
        fbo_feedback.end();
     
     fbo_draw.begin();
-    ofClear(0,0,0,255);
+  ofClear(0,0,0,255);
     fbo_draw.end();
-    
-    fbo_blur.begin();
-    ofClear(0,0,0,255);
-    fbo_blur.end();
     
   
     
@@ -294,38 +280,6 @@ void ofApp::setup() {
     
     
 
-    //setting up a tetrahedron
-    
-    ofVec3f tri1;
-    ofVec3f tri2;
-    ofVec3f tri3;
-    ofVec3f tri4;
-    tri1.set(1,1,1);
-    tri2.set(-1,-1,1);
-    tri3.set(-1,1,-1);
-    tri4.set(1,-1,-1);
-    float shapeScale=ofGetWidth()/8;
-    
-    tri1=tri1*shapeScale;
-    tri2=tri2*shapeScale;
-    tri3=tri3*shapeScale;
-    tri4=tri4*shapeScale;
-    
-    
-    tetrahedron.lineTo(tri1);
-    tetrahedron.lineTo(tri2);
-    tetrahedron.lineTo(tri4);
-    tetrahedron.lineTo(tri1);
-    tetrahedron.lineTo(tri3);
-    tetrahedron.lineTo(tri2);
-    tetrahedron.lineTo(tri3);
-    tetrahedron.lineTo(tri4);
-    //tetrahedron.lineTo(tri4);
-    
-    
-    
-    
-   
 
     
 }
@@ -377,9 +331,6 @@ void ofApp::update() {
     
     
    //  plane.set(ofGetWidth(), ofGetHeight(), ofGetWidth()/4, ofGetHeight()/4, OF_PRIMITIVE_TRIANGLE_STRIP);
-    
-    //perlin noise terrain biz
-      //  pnt_img.update();
 
 }
 
@@ -505,13 +456,14 @@ void ofApp::draw() {
     
     
     //first draw the syphon input to a framebuffer to have it available as a texture to send to the mixer
-    //syphonTexture.begin();
+    
+    syphonTexture.begin();
     //fix some auto scaling stuffs in general
   //  int syphonscale=mClient.getWidth()/cam1.getWidth();
     
-    //mClient.draw(0,0,scale1*mClient.getWidth(),scale2*mClient.getHeight());
+   // mClient.draw(0,0,scale1*mClient.getWidth(),scale2*mClient.getHeight());
     
-   // syphonTexture.end();
+    syphonTexture.end();
     
  
    // float blurx =c7;
@@ -533,33 +485,22 @@ void ofApp::draw() {
     
     fbo_draw.begin();
     
-    
-    //try putting graphics up here instead and see if then we can key into opaqueness
-    
-    
-    
-    
-    
-    
     shader_mixer.begin();
-    
-    
-    
-    
-    
    
     
-    shader_mixer.setUniform1f("width", ofGetWidth());
+     shader_mixer.setUniform1f("width", ofGetWidth());
     
     shader_mixer.setUniform1f("height", ofGetHeight());
 
-    shader_mixer.setUniform1f("cam1_scale", gui->cam1_scale);
-    shader_mixer.setUniform1f("cam2_scale", gui->cam2_scale);
+     shader_mixer.setUniform1f("scale1", scale);
    
     
-  
+    //this is the variables that affect pixel displacement
+    ofVec4f bright_wxyz;
+    bright_wxyz.set(gui->x_displace,gui->y_displace,gui->z_displace,gui->w_displace);
     
-   
+    // bright_xyz.set(qq,ee,tt);
+    shader_mixer.setUniform4f("bright_xyz",bright_wxyz);
     
     
     //fb0
@@ -582,8 +523,6 @@ void ofApp::draw() {
     //fb_modswitch.set(1.0,1.0,1.0);
     shader_mixer.setUniform3f("fb0_modswitch",fb_modswitch);
     
-    shader_mixer.setUniform1f("fb0_rotate",(gui->fb0_rotate)/100);
-    
   //fb1
     hsb_x.set(gui->fb1_hue/10,gui->fb1_saturation/10,gui->fb1_bright/10);
     // hsb_x.set(1,1,1);
@@ -598,13 +537,11 @@ void ofApp::draw() {
     shader_mixer.setUniform3f("fb1_rescale",fb_rescale);
     
     
-    
    // ofVec3f fb_modswitch;
     fb_modswitch.set(gui->fb1_hue_invert,gui->fb1_saturation_invert,gui->fb1_bright_invert);
     
     //fb_modswitch.set(1.0,1.0,1.0);
     shader_mixer.setUniform3f("fb1_modswitch",fb_modswitch);
-    shader_mixer.setUniform1f("fb1_rotate",(gui->fb1_rotate)/100);
     
     //fb2
     hsb_x.set(gui->fb2_hue/10,gui->fb2_saturation/10,gui->fb2_bright/10);
@@ -624,31 +561,8 @@ void ofApp::draw() {
     
     //fb_modswitch.set(1.0,1.0,1.0);
     shader_mixer.setUniform3f("fb2_modswitch",fb_modswitch);
-    
-    shader_mixer.setUniform1f("fb2_rotate",(gui->fb2_rotate)/100);
-    
-    //fb3
-    hsb_x.set(gui->fb3_hue/10,gui->fb3_saturation/10,gui->fb3_bright/10);
-    
-    //hsb_x.set(1,1,2);
-    shader_mixer.setUniform3f("fb3_hsb_x",hsb_x);
-    
-    
-    hue_x.set(gui->fb3_huex_mod/10,gui->fb3_huex_offset/10,gui->fb3_huex_lfo/10);
-    shader_mixer.setUniform3f("fb3_hue_x",hue_x);
-    
-    
-    fb_rescale.set(gui->fb3_x_displace,gui->fb3_y_displace,gui->fb3_z_displace/100);
-    shader_mixer.setUniform3f("fb3_rescale",fb_rescale);
-    
-    fb_modswitch.set(gui->fb3_hue_invert,gui->fb3_saturation_invert,gui->fb3_bright_invert);
-    
-    //fb_modswitch.set(1.0,1.0,1.0);
-    shader_mixer.setUniform3f("fb3_modswitch",fb_modswitch);
-    
-    shader_mixer.setUniform1f("fb3_rotate",(gui->fb3_rotate)/100);
-    
-    shader_mixer.setUniform1f("ee",ee);
+
+    shader_mixer.setUniform1f("ps",ee);
     
     
     //here is where controls from the gui get shunted
@@ -767,65 +681,13 @@ void ofApp::draw() {
     shader_mixer.setUniform1f("fb2lumakeythresh", gui->fb2lumakeythresh);
     shader_mixer.setUniform1i("fb2mix", gui->FB2mix);
     
-    shader_mixer.setUniform1f("fb3blend", gui->fb3blend);
-    shader_mixer.setUniform1f("fb3lumakeyvalue", gui->fb3lumakeyvalue);
-    shader_mixer.setUniform1f("fb3lumakeythresh", gui->fb3lumakeythresh);
-    shader_mixer.setUniform1i("fb3mix", gui->FB3mix);
     
-    
-   //h and v flips
-    shader_mixer.setUniform1i("cam1_hflip_switch", gui->cam1_hflip_switch);
-    shader_mixer.setUniform1i("cam1_vflip_switch", gui->cam1_vflip_switch);
-    shader_mixer.setUniform1i("cam2_hflip_switch", gui->cam2_hflip_switch);
-    shader_mixer.setUniform1i("cam2_vflip_switch", gui->cam2_vflip_switch);
-    shader_mixer.setUniform1i("fb0_hflip_switch", gui->fb0_hflip_switch);
-    shader_mixer.setUniform1i("fb0_vflip_switch", gui->fb0_vflip_switch);
-    shader_mixer.setUniform1i("fb1_hflip_switch", gui->fb1_hflip_switch);
-    shader_mixer.setUniform1i("fb1_vflip_switch", gui->fb1_vflip_switch);
-    shader_mixer.setUniform1i("fb2_hflip_switch", gui->fb2_hflip_switch);
-    shader_mixer.setUniform1i("fb2_vflip_switch", gui->fb2_vflip_switch);
-    shader_mixer.setUniform1i("fb3_hflip_switch", gui->fb3_hflip_switch);
-    shader_mixer.setUniform1i("fb3_vflip_switch", gui->fb3_vflip_switch);
+   
     
     
     
     
-    //pixelations
     
-    //cam1
-    shader_mixer.setUniform1i("cam1_pixel_switch",gui->cam1_pixel_switch);
-    shader_mixer.setUniform1i("cam1_pixel_scale",gui->cam1_pixel_scale);
-    shader_mixer.setUniform1f("cam1_pixel_mix",gui->cam1_pixel_mix);
-    shader_mixer.setUniform1f("cam1_pixel_brightscale",gui->cam1_pixel_brightscale);
-    
-    //cam2
-    shader_mixer.setUniform1i("cam2_pixel_switch",gui->cam2_pixel_switch);
-    shader_mixer.setUniform1i("cam2_pixel_scale",gui->cam2_pixel_scale);
-    shader_mixer.setUniform1f("cam2_pixel_mix",gui->cam2_pixel_mix);
-    shader_mixer.setUniform1f("cam2_pixel_brightscale",gui->cam2_pixel_brightscale);
-    
-    //fb0
-    shader_mixer.setUniform1i("fb0_pixel_switch",gui->fb0_pixel_switch);
-    shader_mixer.setUniform1i("fb0_pixel_scale",gui->fb0_pixel_scale);
-    shader_mixer.setUniform1f("fb0_pixel_mix",gui->fb0_pixel_mix);
-    shader_mixer.setUniform1f("fb0_pixel_brightscale",gui->fb0_pixel_brightscale);
-    //fb1
-    shader_mixer.setUniform1i("fb1_pixel_switch",gui->fb1_pixel_switch);
-    shader_mixer.setUniform1i("fb1_pixel_scale",gui->fb1_pixel_scale);
-    shader_mixer.setUniform1f("fb1_pixel_mix",gui->fb1_pixel_mix);
-    shader_mixer.setUniform1f("fb1_pixel_brightscale",gui->fb1_pixel_brightscale);
-    
-    //fb2
-    shader_mixer.setUniform1i("fb2_pixel_switch",gui->fb2_pixel_switch);
-    shader_mixer.setUniform1i("fb2_pixel_scale",gui->fb2_pixel_scale);
-    shader_mixer.setUniform1f("fb2_pixel_mix",gui->fb2_pixel_mix);
-    shader_mixer.setUniform1f("fb2_pixel_brightscale",gui->fb2_pixel_brightscale);
-    
-    //fb3
-    shader_mixer.setUniform1i("fb3_pixel_switch",gui->fb3_pixel_switch);
-    shader_mixer.setUniform1i("fb3_pixel_scale",gui->fb3_pixel_scale);
-    shader_mixer.setUniform1f("fb3_pixel_mix",gui->fb3_pixel_mix);
-    shader_mixer.setUniform1f("fb3_pixel_brightscale",gui->fb3_pixel_brightscale);
     
     
     
@@ -840,15 +702,14 @@ void ofApp::draw() {
    
     
     //set a conditional statement of which fbo
-   // shader_mixer.setUniformTexture("syphon",syphonTexture.getTexture(),1);
+    shader_mixer.setUniformTexture("syphon",syphonTexture.getTexture(),1);
     shader_mixer.setUniformTexture("cam1",cam1.getTexture(),2);
     shader_mixer.setUniformTexture("cam2",cam2.getTexture(),3);
     
     
-   // int delay0=gui->fb0delayamnt;
-    //int delay1=gui->fb1delayamnt;
-   // int delay2=gui->fb2delayamnt;
-   // int delay3=gui->fb3delayamnt;
+    int delay0=gui->fb0delayamnt;
+    int delay1=gui->fb1delayamnt;
+    int delay2=gui->fb2delayamnt;
     
  
     
@@ -857,10 +718,9 @@ void ofApp::draw() {
     shader_mixer.setUniform1f("compScaley",1);
   //  shader_mixer.setUniformTexture("fb0",pastFrames[(abs(framedelayoffset-fbob-delay0))%fbob].getTexture(),4);
     
-     shader_mixer.setUniformTexture("fb0",pastFrames[(abs(framedelayoffset-fbob-gui->fb0delayamnt)-1)%fbob].getTexture(),4);
-    shader_mixer.setUniformTexture("fb1",pastFrames[(abs(framedelayoffset-fbob-gui->fb1delayamnt)-1)%fbob].getTexture(),5);
-    shader_mixer.setUniformTexture("fb2",pastFrames[(abs(framedelayoffset-fbob-gui->fb2delayamnt)-1)%fbob].getTexture(),6);
-    shader_mixer.setUniformTexture("fb3",pastFrames[(abs(framedelayoffset-fbob-gui->fb3delayamnt)-1)%fbob].getTexture(),7);
+     shader_mixer.setUniformTexture("fb0",pastFrames[(abs(framedelayoffset-fbob-delay0)-1)%fbob].getTexture(),4);
+    shader_mixer.setUniformTexture("fb1",pastFrames[(abs(framedelayoffset-fbob-delay1)-1)%fbob].getTexture(),5);
+    shader_mixer.setUniformTexture("fb2",pastFrames[(abs(framedelayoffset-fbob-delay2)-1)%fbob].getTexture(),6);
     
   
     
@@ -887,171 +747,20 @@ void ofApp::draw() {
 	
     //this bit is for just testing stuff with a pretty little rotating square
     //you can just put whatever graphical code you want in this section and it will draw over everything
-    
-   // pnt_img.draw(0,0,ofGetWidth(),ofGetHeight());
-    
-    //additive vector synth zones
-    
-    /*
-    ofPushMatrix();
-    ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
-    
-    ofFill();
-    ofColor c=(0);
-    c.setHsb(127*(1+.5*sin(theta/100)),255,255);
-    ofSetColor(c);
-   // ofSetColor(255);
-    float radius=ofGetWidth()/4;
-    
-    for(float i=0;i<TWO_PI;i+=.01){
-        
-        int numberOfHarmonics=16;
-        float polar_x=0;
-        float polar_y=0;
-        float polar_z=0;
-        for(int j=1;j<numberOfHarmonics;j++){
-            //polar_x+=cos(j*i)*((1-amp)+amp*sin(theta-j));
-            //polar_y+=sin(j*i)*((1-amp)+amp*cos(theta-j));
-            
-            //polar_x+=cos(2*j*i)/(2*j);
-            //polar_y+=sin(2*j*i)/(2*j);
-            
-            polar_x+=cos(i*j-theta)*sin(theta);
-            polar_y+=sin(i*j+theta)*cos(theta);
-           // polar_z+=cos(theta*i);
-            
-        }//endjfor
-        
-        theta+=.001;
-        polar_x=radius*polar_x/numberOfHarmonics;
-        polar_y=radius*polar_y/numberOfHarmonics;
-        
-        ofPushMatrix();
-        
-        ofTranslate(polar_x,polar_y,polar_z);
-        ofDrawRectangle(0,0,1,1);
-        ofPopMatrix();
-    }//endifor
-  
-    ofPopMatrix();
-
-    */
-    
-    
-    //perlin noise terrain experiment
-    
-    
-    
-    
-    /*
-    
-    float noiseVel = ofGetElapsedTimef()/16;
-    
-    int scale=40;
-    int w = ofGetWidth()/scale;
-    int h = ofGetHeight()/scale;
-   // ofNoFill();
-    int xoff=0;
-    int yoff=0;
-    ofPushMatrix();
-    ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
-    ofRotateXRad(PI/3);
-    for(int y=0; y<h; y++) {
-        yoff+=.1;
-        for(int x=0; x<w; x++) {
-            xoff+=.1;
-            int i = y * w + x;
-            float noiseValue = ofNoise(x * .1+xoff, y * .1+yoff, noiseVel);
-            
-            ofSetColor(255);
-            pnt_line.lineTo(x*scale-ofGetWidth()/2,y*scale-ofGetHeight()/2,50*noiseValue);
-            
-     
-        }//endxfor
-        pnt_line.draw();
-        pnt_line.clear();
-    }//endyfor
-
-    ofPopMatrix();
-    
-    */
-    
-    
-    if(gui->tetrahedron_switch==1){
-    
+	/*
     ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
-    ofNoFill();
-    ofPushMatrix();
-    ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
-    ofRotateZRad(ofGetElapsedTimef()/5);
-    ofRotateYRad(ofGetElapsedTimef()/13);
-    ofRotateXRad(ofGetElapsedTimef()/11);
-    tetrahedron.draw();
-    
-    
-   
-    ofPopMatrix();
-    }
-    
-    /*
-    ofPushMatrix();
-    ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
-    ofRotateZRad(-ofGetElapsedTimef()/13);
-    ofRotateYRad(-ofGetElapsedTimef()/5);
-    ofRotateXRad(-ofGetElapsedTimef()/11);
-    ofSetColor(127-127*(sin(ofGetElapsedTimef())),127-127*(cos(ofGetElapsedTimef()/7)),127+127*(sin(ofGetElapsedTimef()/19)),255);
-    tetrahedron.draw();
-    ofPopMatrix();
-     */
-     
-     
-     
-     
-    /*
-	
-    ofSetColor(127+127*(sin(ofGetElapsedTimef())),127-127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
     ofNoFill();
     ofSetRectMode(OF_RECTMODE_CENTER);
     ofPushMatrix();
     ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
-   // ofRotateZRad(ofGetElapsedTimef()/5);
-   // ofRotateYRad(ofGetElapsedTimef()/13);
-   // ofRotateXRad(ofGetElapsedTimef()/11);
-    ofDrawRectangle(0,0, 3*ofGetWidth()/4,3*ofGetHeight()/4);
-   // ofRotateZRad(-ofGetElapsedTimef()/5);
-   // ofRotateYRad(-ofGetElapsedTimef()/13);
-   // ofRotateXRad(-ofGetElapsedTimef()/11);
-   // ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
-  //  ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
-    
+    ofRotateZRad(ofGetElapsedTimef()/5);
+    ofRotateYRad(ofGetElapsedTimef()/13);
+    ofRotateXRad(ofGetElapsedTimef()/11);
+    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
     ofPopMatrix();
     ofSetRectMode(OF_RECTMODE_CORNER);
-    
     */
     
-    /*
-    
-    ofRotateZRad(-ofGetElapsedTimef()/5);
-    ofRotateYRad(ofGetElapsedTimef()/13);
-    ofRotateXRad(ofGetElapsedTimef()/11);
-    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
-    ofRotateZRad(ofGetElapsedTimef()/5);
-    ofRotateYRad(-ofGetElapsedTimef()/13);
-    ofRotateXRad(-ofGetElapsedTimef()/11);
-    ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
-    ofRotateZRad(ofGetElapsedTimef()/5);
-    ofRotateYRad(-ofGetElapsedTimef()/13);
-    ofRotateXRad(ofGetElapsedTimef()/11);
-    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
-    ofRotateZRad(-ofGetElapsedTimef()/5);
-    ofRotateYRad(ofGetElapsedTimef()/13);
-    ofRotateXRad(-ofGetElapsedTimef()/11);
-    ofSetColor(127+127*(sin(ofGetElapsedTimef())),127+127*(cos(ofGetElapsedTimef()/7)),127-127*(sin(ofGetElapsedTimef()/19)),255);
-    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
-    ofDrawRectangle(0,0, ofGetWidth()/4,ofGetHeight()/4);
-    
-   
-    */
     
     
     //secret visualizer fucntionality hidden in the code
@@ -1086,71 +795,19 @@ void ofApp::draw() {
     }
     ofPopMatrix();
     */
-    
     fbo_draw.end();
     
     //----------------------------------------------------------
     
     
-    
-    //sharpen and blur the composited image before it is drawn to screens and buffers
-    
-    fbo_blur.begin();
-    
-    /*
-    shader_sharpen.begin();
-    fbo_draw.draw(0,0);
-    shader_sharpen.end();
-    */
-    
-    
-    
-    shader_blur.begin();
-    
-    fbo_draw.draw(0,0);
-    shader_blur.setUniform1f("blurAmnt",gui->blur_amount);
-    shader_blur.end();
-    
-    
-    fbo_blur.end();
-    
-    
-    
-    fbo_draw.begin();
-    
-    /*
-    shader_blur.begin();
-    fbo_blur.draw(0,0);
-    shader_blur.setUniform1f("blurAmnt",gui->blur_amount);
-    shader_blur.end();
-    */
-     
-     
-    //so add a radius and chi variable to this
-    //then figure out how to switch on and off and route properly
-   
-    shader_sharpen.begin();
-    fbo_blur.draw(0,0);
-    shader_sharpen.setUniform1f("sharpAmnt",gui->sharpen_amount);
-    shader_sharpen.end();
-   
-    
-    //fbo_blur.draw(0,0);
-    
-    fbo_draw.end();
-    
-    
-    //___--_------___-_-_______-----___-
-    
     /*this part gets drawn to screen*/
     ofSetColor(ofColor::white);
-    
+   
     ofPushMatrix();
     //add seperate switchs for this and fbo
     ofTranslate(ofGetWidth()/2.0,ofGetHeight()/2.0);
     
-   // ofRotateZRad(oo*TWO_PI/ii);
-    //looks like there needds to be seperate rotations for camera stuff and framebuffer stuffs
+    ofRotateZRad(oo*TWO_PI/ii);
     ofTranslate(0,0,0);
     fbo_draw.draw(-ofGetWidth()/2.0,-ofGetHeight()/2.0);
     ofPopMatrix();
@@ -1158,7 +815,7 @@ void ofApp::draw() {
     
     theta+=.001*(1+c3);
     
-    
+   
      
      
     
@@ -1176,7 +833,7 @@ void ofApp::draw() {
     
   
     
-    
+    //feed the previous frame into position 0
     
     //feed the previous frame into position 0 (index0)
     
@@ -1184,16 +841,13 @@ void ofApp::draw() {
     
     
     ofPushMatrix();
-  
     //recenter the coordinates so 0,0 is at the center of the screen
     ofTranslate(ofGetWidth()/2,ofGetHeight()/2,0);
-   
     //  ofRotateZRad(.01);
     ofTranslate(ff,gg,hh);
     ofRotateYRad(ss);
     ofRotateXRad(aa);
     ofRotateZRad(dd);
-     ofRotateZRad(oo*TWO_PI/ii);
     //control translating the z component of the delay with a and z
    // ofTranslate(0,0,zz);
     
@@ -1263,13 +917,6 @@ void ofApp::keyPressed(int key){
         aa=ss=dd=ff=gg=hh=0;
     }
     
-    if(key=='='){
-        alpha+=1;
-    }
-    if(key=='-'){
-        alpha-=1;
-    }
-    
     if(key=='2'){
           loop.play();
     }
@@ -1312,8 +959,8 @@ void ofApp::keyPressed(int key){
     if(key=='k'){kk+=0.1;}
     if(key==','){kk-=0.1;}
     
-    if(key=='l'){cam1_scale+=0.01;}
-    if(key=='.'){cam1_scale-=0.01;}
+    if(key=='l'){scale+=0.01;}
+    if(key=='.'){scale-=0.01;}
     
     if(key==';'){scale1+=0.01;}
     if(key=='/'){scale1-=0.01;}
@@ -1323,8 +970,8 @@ void ofApp::keyPressed(int key){
     
     if(key=='q'){qq+=0.001;cout << "qq"<<qq<< endl;}
     if(key=='w'){qq-=0.001;cout << "qq"<<qq<< endl;}
-    if(key=='e'){ee+=.1;cout << "ee"<<ee<< endl;}
-    if(key=='r'){ee-=.1;cout << "ee"<<ee<< endl;}
+    if(key=='e'){ee+=1;cout << "ee"<<ee<< endl;}
+    if(key=='r'){ee-=1;cout << "ee"<<ee<< endl;}
     
     
     if(key=='u'){ii+=1;}
@@ -1334,11 +981,6 @@ void ofApp::keyPressed(int key){
     
     if(key=='t'){tt+=.01;}
     if(key=='y'){tt-=.01;}
-    
-    
-    if(key=='2'){amp+=.001;}
-    if(key=='3'){amp-=.001;}
-    
 
 
 }

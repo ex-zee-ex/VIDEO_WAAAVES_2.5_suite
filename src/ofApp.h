@@ -31,6 +31,8 @@ public:
 	void mouseDragged(int x, int y, int button);
 	void mousePressed(int x, int y, int button);
 	void mouseReleased();
+    
+    void midibiz();
 	
     //-----------guibiz
     shared_ptr<GuiApp> gui;
@@ -52,7 +54,7 @@ public:
  
     ofFbo fbo_draw;
     ofFbo fbo_feedback;
-     ofFbo fbo_blur;
+    ofFbo fbo_blur;
     
     
     ofFbo syphonTexture;
@@ -70,22 +72,23 @@ public:
     
     
     //secret loop option over here
-    ofVideoPlayer loopMovie;
+   // ofVideoPlayer loopMovie;
     //trysomaudiobiz
     
-    ofSoundPlayer		loop;
+    //ofSoundPlayer		loop;
     
-    static constexpr size_t nBandsToGet = 128;
-    std::array<float, nBandsToGet> fftSmoothed{{0}};
+   // static constexpr size_t nBandsToGet = 128;
+    //std::array<float, nBandsToGet> fftSmoothed{{0}};
     
     //maybes try the frequency in a terrain curve
-    ofPolyline frequencyLine0;
+   /*
+     ofPolyline frequencyLine0;
      ofPolyline frequencyLine1;
      ofPolyline frequencyLine2;
      ofPolyline frequencyLine3;
     
     ofPlanePrimitive plane;
-
+    */
 
     //sypphon some shit in yo
     
@@ -94,6 +97,6 @@ public:
     //and send it back out too
     ofxSyphonServer mainOutputSyphonServer;
     
-    ofImage pnt_img;
+    //ofImage pnt_img;
     
 };
