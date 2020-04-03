@@ -1,3 +1,0 @@
-ofxDatGui
-ofxMidi
-ofxSyphon
