@@ -45,6 +45,7 @@ https://vimeo.com/andreijay for many examples of this program in action.
 
 
 midi cc list for video waaaves!
+
 ch1 hue  20
 
 ch1 saturation  21
@@ -88,22 +89,22 @@ fb1 mix 27
 
 fb1 delay 26
 
-fb0 x  6
+fb1 x  6
 
-fb0 y  1
+fb1 y  1
 
-fb0 z  14
+fb1 z  14
 
-fb0 rotate 9
+fb1 rotate 9
 
-fb0 hue 7
+fb1 hue 7
 
-fb0 sat 0
+fb1 sat 0
 
-fb0 bright 15
+fb1 bright 15
 
-fb0 huemod 18-not bipolar
+fb1 huemod 18-not bipolar
 
-fb0 hueoffset 8
+fb1 hueoffset 8
 
-fb0 huelfo 19
+fb1 huelfo 19
