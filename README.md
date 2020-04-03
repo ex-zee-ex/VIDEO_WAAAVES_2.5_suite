@@ -5,6 +5,10 @@ OK! so installing from these files here on the github are kind of only for folks
 
 https://drive.google.com/open?id=1VVwciTI60kvjf7pIZd4kvxfKSJg_MYhX
 
+for windows download the zip here
+
+https://drive.google.com/open?id=1hwyjTGVYb3oYfLxKGUy170L5Jm2fk9g8
+
 unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
 
 The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  
