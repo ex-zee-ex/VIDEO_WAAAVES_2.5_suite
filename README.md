@@ -1,9 +1,13 @@
-# VIDEO_WAAAVES_1.5
+# VIDEO_WAAAVES_2
 a video mixer, framebuffer delay, and feedback resynthesis engine built in openFrameworks https://openframeworks.cc/
 
-OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  Download the zip here https://drive.google.com/open?id=1a2TScyK68Qm4_pSTsc3hG2fPHbgm-uLf, unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
+OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  For OSX ownload the zip here 
 
-The most notable thing about the Square root of Pi update (~1.77245385091...) is a new beta test of midi functionality.  scroll down to the bottom of this readme for midi cc lists!
+https://drive.google.com/open?id=1VVwciTI60kvjf7pIZd4kvxfKSJg_MYhX
+
+unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
+
+The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  
 
 ![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/hypercuuube.png)
 
