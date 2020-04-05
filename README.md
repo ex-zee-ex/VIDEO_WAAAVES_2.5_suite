@@ -7,11 +7,13 @@ OK! so installing from these files here on the github are kind of only for folks
 
 https://drive.google.com/open?id=1rHX1LVA2dGAoOP51-NxUSUD_c47C0YVP
 
+unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
+
 for windows download the zip here
 
 https://drive.google.com/open?id=187pYedjJMxqHuMWmBdHOd8ZdMoiEaqNF
 
-unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
+and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
 
 The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  
 
