@@ -5,11 +5,11 @@ a video mixer, framebuffer delay, and feedback resynthesis engine built in openF
 
 OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  For OSX ownload the zip here 
 
-https://drive.google.com/open?id=1VVwciTI60kvjf7pIZd4kvxfKSJg_MYhX
+https://drive.google.com/open?id=1rHX1LVA2dGAoOP51-NxUSUD_c47C0YVP
 
 for windows download the zip here
 
-https://drive.google.com/open?id=1hwyjTGVYb3oYfLxKGUy170L5Jm2fk9g8
+https://drive.google.com/open?id=187pYedjJMxqHuMWmBdHOd8ZdMoiEaqNF
 
 unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
 
