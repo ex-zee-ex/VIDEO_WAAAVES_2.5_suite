@@ -1287,7 +1287,7 @@ void ofApp::midibiz(){
                  cout << "message.value"<< message.value<< endl;
                 //lets try defaulting to bipolar...
                 //nice try but nope that sucks
-                midi_controls[message.control]=(message.value-63.0)/63.0;
+                //midi_controls[message.control]=(message.value-63.0)/63.0;
                 
                 
                 //ch1 hue
