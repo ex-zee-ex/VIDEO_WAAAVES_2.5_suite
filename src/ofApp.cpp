@@ -728,17 +728,17 @@ void ofApp::draw() {
     //for now channel 1 and 2 can only b cam1 or cam2 input
     shader_mixer.setUniform1i("channel1", gui->channel1_select);
     shader_mixer.setUniform1i("channel2", gui->channel2_select);
-    shader_mixer.setUniform1i("mix1", gui->mix1);
-    shader_mixer.setUniform1i("mix2", gui->mix2);
+    shader_mixer.setUniform1i("mix1", 2);//gui->mix1);
+    //shader_mixer.setUniform1i("mix2", gui->mix2);
     
     
     //mix1 controls from the gui
-    shader_mixer.setUniform1f("mix1blend1", gui->mix1blend1);
+    shader_mixer.setUniform1f("mix1blend1", gui->ch2_mix);
     
     
     
-    shader_mixer.setUniform1f("mix1keythresh", gui->mix1lumakeythresh);
-    shader_mixer.setUniform1f("mix1keybright",gui->mix1lumakeyvalue);
+    //shader_mixer.setUniform1f("mix1keythresh", gui->mix1lumakeythresh);
+     shader_mixer.setUniform1f("mix1keybright",gui->ch2_key_value);
     
     
     
