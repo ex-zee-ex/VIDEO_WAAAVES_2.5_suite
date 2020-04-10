@@ -13,7 +13,14 @@ for windows download the zip here
 
 https://drive.google.com/open?id=187pYedjJMxqHuMWmBdHOd8ZdMoiEaqNF
 
-and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
+and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!  *edit ok i forgot to add that into the windows version* heres the text for now
+
+
+"WHAT THE HECK IS THIS????
+
+Welp you have downloaded and uncompressed the video_waaaves_2 ! please note that before going any further you should make sure to have visual studio 2017 installed according to the instructions linked in the readme!
+once you have achieved vs2017 steps then all you have to do is go to apps->myapps and then open up VIDEO_WAAAVES_IM_windows  folder and find the thing that says VIDEO_WAAAVES_IM_windows.vcxproj, double click on that.  The virtual studio console will pop up and you will see a button with the play symbol on it somewhere around the middle top of the screen, press that button and have fun!"
+*end edit*
 
 The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  
 
