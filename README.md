@@ -5,13 +5,13 @@ a video mixer, framebuffer delay, and feedback resynthesis engine built in openF
 
 OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  For OSX ownload the zip here 
 
-https://drive.google.com/open?id=1rHX1LVA2dGAoOP51-NxUSUD_c47C0YVP
+https://drive.google.com/open?id=1uStceYZ25zGLt6KTwCcE6YIUqzXRrYk6
 
 unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
 
 for windows download the zip here
 
-https://drive.google.com/open?id=187pYedjJMxqHuMWmBdHOd8ZdMoiEaqNF
+https://drive.google.com/open?id=1xPWi1Zm_bI73GpxnLD7MbGmgyrrwBPhj
 
 and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!  *edit ok i forgot to add that into the windows version* heres the text for now
 
@@ -22,13 +22,13 @@ Welp you have downloaded and uncompressed the video_waaaves_2 ! please note that
 once you have achieved vs2017 steps then all you have to do is go to apps->myapps and then open up VIDEO_WAAAVES_IM_windows  folder and find the thing that says VIDEO_WAAAVES_IM_windows.vcxproj, double click on that.  The virtual studio console will pop up and you will see a button with the play symbol on it somewhere around the middle top of the screen, press that button and have fun!"
 *end edit*
 
-The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  
+The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  For everyone who downloaded the 2.0 upon release i have since fixed the thing where channel 2 wasn't getting mixed in as well  
 
 ![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/hypercuuube.png)
 
 requires ofxSyphon https://github.com/astellato/ofxSyphon, 
 ofxMidi https://github.com/danomatika/ofxMidi, 
-and ofxDatGui https://github.com/braitsch/ofxDatGui addons
+and ofxImGui https://github.com/jvcleave/ofxImGui
 
 for windows and linux check the noSyphon folder for alternate versions of some files to copy over into the src folder to get u up and running in syphon free zones
 
