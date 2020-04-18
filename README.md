@@ -13,14 +13,12 @@ for windows download the zip here
 
 https://drive.google.com/open?id=1xPWi1Zm_bI73GpxnLD7MbGmgyrrwBPhj
 
-and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!  *edit ok i forgot to add that into the windows version* heres the text for now
+and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun! 
 
+if u are working in the dreaded osx 'Catalina" you will perhaps need to mess around with permissions, like in this picture below
+![Image description](https://github.com/ex-zee-ex/pictures/blob/master/xcode_permissions.jpg)
+giving xcode full permission to the disk might be necessary if you are getting an error like "command /bin/sh failed with exit code 74"
 
-"WHAT THE HECK IS THIS????
-
-Welp you have downloaded and uncompressed the video_waaaves_2 ! please note that before going any further you should make sure to have visual studio 2017 installed according to the instructions linked in the readme!
-once you have achieved vs2017 steps then all you have to do is go to apps->myapps and then open up VIDEO_WAAAVES_IM_windows  folder and find the thing that says VIDEO_WAAAVES_IM_windows.vcxproj, double click on that.  The virtual studio console will pop up and you will see a button with the play symbol on it somewhere around the middle top of the screen, press that button and have fun!"
-*end edit*
 
 The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  For everyone who downloaded the 2.0 upon release i have since fixed the thing where channel 2 wasn't getting mixed in as well  
 
