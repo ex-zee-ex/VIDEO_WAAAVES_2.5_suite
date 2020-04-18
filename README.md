@@ -16,8 +16,12 @@ https://drive.google.com/open?id=1xPWi1Zm_bI73GpxnLD7MbGmgyrrwBPhj
 and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun! 
 
 if u are working in the dreaded osx 'Catalina" you will perhaps need to mess around with permissions, like in this picture below
+
 ![Image description](https://github.com/ex-zee-ex/pictures/blob/master/xcode_permissions.jpg)
+
 giving xcode full permission to the disk might be necessary if you are getting an error like "command /bin/sh failed with exit code 74"
+
+![Image description](https://github.com/ex-zee-ex/pictures/blob/master/xcode_permissions.jpg)
 
 
 The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  For everyone who downloaded the 2.0 upon release i have since fixed the thing where channel 2 wasn't getting mixed in as well  
