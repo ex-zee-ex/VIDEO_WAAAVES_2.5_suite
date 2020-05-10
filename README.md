@@ -126,3 +126,11 @@ fb1 hueoffset 8
 fb1 huelfo 19
 
 (yes i know that is far from all of the parameters.  I'll be frank, adding full midi support for every parameter would be pretty boring and time consuming and adds very little to my personal usage of this software!  if you want more midi ccs mapped to parameters you'll basically have to pay me because its pretty unlikely that i'll decide one afternoon "hmmm what i could i do that is boring and time consuming and gives me no personal satisfaction.  a paypal button can be found at andreijaycreativecoding.com)
+
+
+HOW TO CHANGE YOUR CAMERA SOURCES
+so video waaaves just default grabs device id 0 and 1, if you only have 2 cameras recognized in your system then you don't need to be concerned with this.  if you have a couple of external cameras you would like to use or would like to say enable spoutcam or blackmagic inputs via this method then you will need to check the console while this is running to see what devices are listed
+
+![Image description](https://github.com/ex-zee-ex/pictures/blob/master/v_w_camid.png)
+
+here you can see i have two devices listed in the console with device ids 0 and 1, and that in ofApp.cpp cam1 is set to device 0 and cam2 is set to device 1.  all you need to to do change devices is change the numbers in .setDeviceID()!
