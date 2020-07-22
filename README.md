@@ -3,9 +3,12 @@ a video mixer, framebuffer delay, and feedback resynthesis engine built in openF
 
 (QUICK ADVERTISEMENT FOR MYSELF https://andreijaycreativecoding.com/ this is my website, there is a pay pal button on here, if you have a fun time with the software i make and can afford to send me a donation it is super appreciated, the more donations i recieve means the more time i can spend working on crazy awesome open source software)
 
-OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  For OSX ownload the zip here 
+OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  For OSX download the zip here 
 
 https://drive.google.com/open?id=1uStceYZ25zGLt6KTwCcE6YIUqzXRrYk6
+
+then follow the instructions here for setting up Xcode https://openframeworks.cc/setup/xcode/ 
+(you might want to not download xcode from the app store but instead grab an older version from here https://openframeworks.cc/setup/xcode/)
 
 unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
 
