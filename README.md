@@ -3,50 +3,12 @@ a video mixer, framebuffer delay, and feedback resynthesis engine built in openF
 
 (QUICK ADVERTISEMENT FOR MYSELF https://andreijaycreativecoding.com/ this is my website, there is a pay pal button on here, if you have a fun time with the software i make and can afford to send me a donation it is super appreciated, the more donations i recieve means the more time i can spend working on crazy awesome open source software)
 
-OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  For OSX ownload the zip here 
+OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  Head on over to this link
 
-https://drive.google.com/open?id=1uStceYZ25zGLt6KTwCcE6YIUqzXRrYk6
+https://andreijaycreativecoding.com/VIDEO-WAAAVES-GETTING-STARTED
 
-unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
+and follow the instructions to get up and running!
 
-for windows download the zip here
-
-https://drive.google.com/open?id=1xPWi1Zm_bI73GpxnLD7MbGmgyrrwBPhj
-
-and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!  *edit ok i forgot to add that into the windows version* heres the text for now
-
-
-"WHAT THE HECK IS THIS????
-
-Welp you have downloaded and uncompressed the video_waaaves_2 ! please note that before going any further you should make sure to have visual studio 2017 installed according to the instructions linked in the readme!
-once you have achieved vs2017 steps then all you have to do is go to apps->myapps and then open up VIDEO_WAAAVES_IM_windows  folder and find the thing that says VIDEO_WAAAVES_IM_windows.vcxproj, double click on that.  The virtual studio console will pop up and you will see a button with the play symbol on it somewhere around the middle top of the screen, press that button and have fun!"
-*end edit*
-
-The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  For everyone who downloaded the 2.0 upon release i have since fixed the thing where channel 2 wasn't getting mixed in as well  
-
-![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/hypercuuube.png)
-
-requires ofxSyphon https://github.com/astellato/ofxSyphon, 
-ofxMidi https://github.com/danomatika/ofxMidi, 
-and ofxImGui https://github.com/jvcleave/ofxImGui
-
-for windows and linux check the noSyphon folder for alternate versions of some files to copy over into the src folder to get u up and running in syphon free zones
-
-![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/swirl.png)
-
-if you have never used oF and/or Xcode before here are some troubleshooting tips to try
-1. the entire folder structure needs to be intact and moved into the apps/myApps folder within the openframeworks folder
-2. try running project generator and importing this folder (with the abovementioned addons) if theres still errors
-3. https://openframeworks.cc/setup/xcode/ has some advice on how to troubleshoot troublesome addons as well so check this out too!
-
-![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/vlcsnap-2019-08-10-22h55m38s489.png)
-
-numereous secret keyboard commands
-to scale syphon input press[] and ;/
-
-to rotate and shift framebuffer xyz positions a,z,s,x,d,c,f,v,g,b,h,n,t,y can all be used, the numerical key '3' resets all positions
-
-the numerical key '1'clears the framebuffer
 
 ![Image description](https://github.com/ex-zee-ex/VIDEO_WAAAVES_1_5/blob/master/vlcsnap-2019-08-10-22h57m07s147.png)
 
