@@ -85,4 +85,4 @@ fb1 hueoffset 8
 
 fb1 huelfo 19
 
-(yes i know that is far from all of the parameters.  I'll be frank, adding full midi support for every parameter would be pretty boring and time consuming and adds very little to my personal usage of this software!  if you want more midi ccs mapped to parameters you'll basically have to pay me because its pretty unlikely that i'll decide one afternoon "hmmm what i could i do that is boring and time consuming and gives me no personal satisfaction.  a paypal button can be found at andreijaycreativecoding.com)
+(yes i know that is far from all of the parameters.  I'll be frank, adding full midi support for every parameter would be pretty boring and time consuming and adds very little to my personal usage of this software!  if you want more midi ccs mapped to parameters you'll basically have to pay me because its a lot of dang work and i don't have any midi controllers with 200 knobs to use with this set up so)
