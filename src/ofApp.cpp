@@ -10,39 +10,16 @@
  *
  */
 
-
-
-
-
-
 /*thanks to ed tannenbaum for help in fixing up the framebuffer code!*/
 
-
-
-
-
-
-
-
-
-
-//so what is going to be added in here
-//try out the new hsb controls for the framebuffers and also test with the other channels
-//how many shader runs can we do?  curious if it will be feasible to do seperate shader runs for all of the vertex displacements but i think that it would be a good goal to have in terms of making a universial function for that to reuse as much as possible!  plus a goal is to test how many shader passes i can run before noticing slowdown!
-
-
-
-
-
 #include "ofApp.h"
-
-
 #include <iostream>
-
 
 //this fixes the total maximum delay time possible in frames
 //
-const int fbob=60;
+const int fbob=30;
+
+float color_theta=0;
 
 //variables for the midi controllers
 float c1=0;
@@ -79,8 +56,19 @@ float c31=0;
 
 //lfo thetas
 
+//ch1
+float ch1_theta_hue;
+float ch1_theta_saturation;
+float ch1_theta_bright;
+
+float ch2_theta_hue;
+float ch2_theta_saturation;
+float ch2_theta_bright;
+
 //fb0
 float fb0_theta_mix;
+float fb0_theta_lumakeyvalue;
+float fb0_theta_lumakeythreshold;
 float fb0_theta_delay;
 float fb0_theta_hue;
 float fb0_theta_saturation;
@@ -95,6 +83,8 @@ float fb0_theta_rotate;
 
 //fb1
 float fb1_theta_mix;
+float fb1_theta_lumakeyvalue;
+float fb1_theta_lumakeythreshold;
 float fb1_theta_delay;
 float fb1_theta_hue;
 float fb1_theta_saturation;
@@ -109,6 +99,8 @@ float fb1_theta_rotate;
 
 //fb2
 float fb2_theta_mix;
+float fb2_theta_lumakeyvalue;
+float fb2_theta_lumakeythreshold;
 float fb2_theta_delay;
 float fb2_theta_hue;
 float fb2_theta_saturation;
@@ -123,6 +115,8 @@ float fb2_theta_rotate;
 
 //fb3
 float fb3_theta_mix;
+float fb3_theta_lumakeyvalue;
+float fb3_theta_lumakeythreshold;
 float fb3_theta_delay;
 float fb3_theta_hue;
 float fb3_theta_saturation;
@@ -134,6 +128,60 @@ float fb3_theta_x;
 float fb3_theta_y;
 float fb3_theta_z;
 float fb3_theta_rotate;
+
+//globla
+float blur_theta_amount;
+float blur_theta_radius;
+float sharpen_theta_amount;
+float sharpen_theta_radius;
+float sharpen_theta_boost;
+
+//pixels
+
+//fb0
+float fb0_theta_pixel_scale_x=0;
+float fb0_theta_pixel_scale_y=0;
+float fb0_theta_pixel_mix=0;
+float fb0_theta_pixel_brightscale=0;
+
+//fb1
+float fb1_theta_pixel_scale_x=0;
+float fb1_theta_pixel_scale_y=0;
+float fb1_theta_pixel_mix=0;
+float fb1_theta_pixel_brightscale=0;
+
+//fb2
+float fb2_theta_pixel_scale_x=0;
+float fb2_theta_pixel_scale_y=0;
+float fb2_theta_pixel_mix=0;
+float fb2_theta_pixel_brightscale=0;
+
+//fb3
+float fb3_theta_pixel_scale_x=0;
+float fb3_theta_pixel_scale_y=0;
+float fb3_theta_pixel_mix=0;
+float fb3_theta_pixel_brightscale=0;
+
+//ndi
+float ndi_theta_pixel_scale_x=0;
+float ndi_theta_pixel_scale_y=0;
+float ndi_theta_pixel_mix=0;
+float ndi_theta_pixel_brightscale=0;
+
+
+//cam2
+float cam2_theta_pixel_scale_x=0;
+float cam2_theta_pixel_scale_y=0;
+float cam2_theta_pixel_mix=0;
+float cam2_theta_pixel_brightscale=0;
+
+//cam1
+float cam1_theta_pixel_scale_x=0;
+float cam1_theta_pixel_scale_y=0;
+float cam1_theta_pixel_mix=0;
+float cam1_theta_pixel_brightscale=0;
+
+
 
 ofPolyline tetrahedron;
 //ofPolyline pnt_line;
@@ -161,10 +209,7 @@ float theta=0;
 
 float frequency=0;
 
-
 float amp=0;
-
-float alpha=255;
 
 float cam1_scale=1;
 float scale1=1;
@@ -174,8 +219,6 @@ float scale2=1;
 float scale=.5;
 
 float tt=0;
-
-float midi_controls[127];
 
 
 int framedelayoffset=0;  // this is used as an index to the circular framebuffers eeettt
@@ -213,31 +256,9 @@ void incIndex()  // call this every frame to calc the offset eeettt
 void ofApp::setup() {
     
     ofSetFrameRate(30);
-   // ofDisableAlphaBlending();
-    //ofSetVerticalSync(FALSE);
     
-    //syphon input
-    
-    //mClient.set("","Black Syphon");
-    mClient.setup();
-    mClient.set("","Syphoner");
-    //mClient.set("","Black Syphon");
-    
-    //syphonoutput
-    mainOutputSyphonServer.setName("VIDEO_WAAAVES_screen");
-    
-    
-    
-    
-    //audiovisualizer biz
-    /*
-    loop.load("sounds/5.wav");
-    
-    loop.setLoop(1);
-    
-    loop.setVolume(1);
-    
-    */
+   
+ 
     
 	ofSetVerticalSync(true);
 	ofBackground(0);
@@ -250,7 +271,7 @@ void ofApp::setup() {
 	midiIn.listInPorts();
 	
 	// open port by number (you may need to change this)
-	midiIn.openPort(0);
+	midiIn.openPort(1);
 	//midiIn.openPort("IAC Pure Data In");	// by name
 	//midiIn.openVirtualPort("ofxMidiIn Input"); // open a virtual port
 	
@@ -266,7 +287,11 @@ void ofApp::setup() {
     
     /*******/
     
-    
+    string reciever_name="Scan Converter";
+    //string reciever_name="testing";
+    //ndi setup
+    NDI_reciever_setup(reciever_name);
+    //NDI_sender_setup("video_waaaaves");
     /**shaderobiz***/
     
 #ifdef TARGET_OPENGLES
@@ -279,24 +304,20 @@ void ofApp::setup() {
         shader_mixer.load("shadersGL2/shader_mixer");
         shader_blur.load("shadersGL2/shader_blur");
         shader_sharpen.load("shadersGL2/shader_sharpen");
-        
        
     }
 #endif
     
-   
-    
- 
     fbo_draw.allocate(ofGetWidth(), ofGetHeight());
     fbo_feedback.allocate(ofGetWidth(), ofGetHeight());
-        syphonTexture.allocate(ofGetWidth(), ofGetHeight());
     fbo_blur.allocate(ofGetWidth(), ofGetHeight());
     
+    
+    ndi_fbo.allocate(ofGetWidth(), ofGetHeight());
+    
     fbo_feedback.begin();
-
     ofClear(0,0,0,255);
- 
-       fbo_feedback.end();
+    fbo_feedback.end();
     
     fbo_draw.begin();
     ofClear(0,0,0,255);
@@ -306,12 +327,8 @@ void ofApp::setup() {
     ofClear(0,0,0,255);
     fbo_blur.end();
     
-  
-    
-    
     //allocate and clear the variable delay final draw buffers
-    //full resolution version
-    
+ 
     for(int i=0;i<fbob;i++){
         
         pastFrames[i].allocate(ofGetWidth(), ofGetHeight());
@@ -319,35 +336,7 @@ void ofApp::setup() {
         ofClear(0,0,0,255);
         pastFrames[i].end();
         
-    
     }//endifor
-    
-    
-    
-    
-    
-    
-    for(int i=0;i<127;i++){
-        midi_controls[i]=0;
-    }
-    
-    
-    
-   
-    
-    //compressed by reducing the pixels by 1/4
-    /*
-    for(int i=0;i<fbob;i++){
-        
-        pastFrames_comp[i].allocate(ofGetWidth()/2, ofGetHeight()/2);
-        pastFrames_comp[i].begin();
-        ofClear(0,0,0,255);
-        pastFrames_comp[i].end();
-        
-        
-    }//endifor
-    */
-    
     
     //camerabiz
     //if u are having low framerates u can try lower resolution grabs
@@ -355,124 +344,51 @@ void ofApp::setup() {
     
     //add some optional UI interactivity with these
     //like a incrementer that cycles thru integers mod the lenght of the device list for selecting inputs cameras
-    cam1.listDevices();
+   
     cam1.setVerbose(true);
+    cam1.listDevices();
     cam1.setDeviceID(0);
-     //cam1.initGrabber(1280, 960);
-   cam1.initGrabber(640, 480);
-   // cam1.initGrabber(320, 240);
+    //cam1.initGrabber(1280, 960);
+    cam1.setup(640, 480);
+    //cam1.initGrabber(320, 240);
     
     cam2.setDeviceID(1);
-      // cam2.initGrabber(1920, 1080);
-    cam2.initGrabber(640, 480);
+    //cam2.initGrabber(1920, 1080);
+    cam2.setup(640, 480);
     //cam2.initGrabber(320, 240);
-    
-   
-    
-    
-
-    //setting up a tetrahedron
-    
-    ofVec3f tri1;
-    ofVec3f tri2;
-    ofVec3f tri3;
-    ofVec3f tri4;
-    tri1.set(1,1,1);
-    tri2.set(-1,-1,1);
-    tri3.set(-1,1,-1);
-    tri4.set(1,-1,-1);
-    float shapeScale=ofGetWidth()/8;
-    
-    tri1=tri1*shapeScale;
-    tri2=tri2*shapeScale;
-    tri3=tri3*shapeScale;
-    tri4=tri4*shapeScale;
-    
-    
-    tetrahedron.lineTo(tri1);
-    tetrahedron.lineTo(tri2);
-    tetrahedron.lineTo(tri4);
-    tetrahedron.lineTo(tri1);
-    tetrahedron.lineTo(tri3);
-    tetrahedron.lineTo(tri2);
-    tetrahedron.lineTo(tri3);
-    tetrahedron.lineTo(tri4);
-    //tetrahedron.lineTo(tri4);
-    
-    
-    
-    
-   
-
-    
+ 
+    tetrahedron_setup();
+  
 }
-
 
 //--------------------------------------------------------------
 void ofApp::update() {
     
-    //only update if active set a test for that too
-    
-    
-    
-    
+    //only update if active set a test for that too?
     cam1.update();
     cam2.update();
     
     midibiz();
     
-    //movie loop hack
-    //uncomment this part to update the movie looping thing
-    //theres another step so command f movie loop hack for the next one
-    //loopMovie.update();
+    NDI_reciever_update();
+    //NDI_sender_update();
     
+    lfo_update();
     
-    
-    //audiovisualizer biz
-    /*
-    frequencyLine0.clear();
-      frequencyLine1.clear();
-      frequencyLine2.clear();
-      frequencyLine3.clear();
-    float * val = ofSoundGetSpectrum(nBandsToGet);		// request 128 values for fft
-    for (int i = 0;i < nBandsToGet; i++){
+    if(gui->framebuffer_clear==true){
+        for(int i=0;i<fbob;i++){
+            pastFrames[i].begin();
+            
+            ofClear(0,0,0,255);
+            
+            pastFrames[i].end();
+        }
         
-        // let the smoothed value sink to zero:
-        fftSmoothed[i] *= 0.99f;
-        
-        // take the max, either the smoothed or the incoming:
-        if (fftSmoothed[i] < val[i]) fftSmoothed[i] = val[i];
-        int y=fftSmoothed[i] * ofGetHeight()/8*c2;
-        int x=ofMap(i,0,nBandsToGet,0,ofGetWidth()/2);
-        frequencyLine0.addVertex(x,y);
-        frequencyLine1.addVertex(x,-y);
-        frequencyLine2.addVertex(-x,-y);
-        frequencyLine3.addVertex(-x,y);
-        
+        fbo_draw.begin();
+        ofClear(0,0,0,255);
+        fbo_draw.end();
+        cout<<"lalalal"<<endl;
     }
-     
-    
-    */
-    
-    
-   //  plane.set(ofGetWidth(), ofGetHeight(), ofGetWidth()/4, ofGetHeight()/4, OF_PRIMITIVE_TRIANGLE_STRIP);
-    
-    //perlin noise terrain biz
-      //  pnt_img.update();
-    
-    
-    
-    //lfobiz
-    //probably turnthis into a function
-    //tho not like a legal function lol
-    //unless i put everything into an array or something
-    //and can just pass a pointer
-    //is it still a function if yr passing pointer/?
-    //i don't think so
-    
-    //either way this is where we will increment the thetas
-    
-    
 }
 
 //--------------------------------------------------------------
@@ -486,125 +402,52 @@ void ofApp::draw() {
     /***shaderbix**/
     
     
-   //bind the syphon input to a texture.  i'm pretty sure there's a better way to do this but here we hare
-    syphonTexture.begin();
- 
-    mClient.draw(0,0,scale1*gui->syphon_scale*mClient.getWidth(),scale2*gui->syphon_scale*mClient.getHeight());
-    
-    syphonTexture.end();
-    
+  
  
    
     fbo_draw.begin();
-    
-    
-    //try putting graphics up here instead and see if then we can key into opaqueness
-    
-    
-    
-    
-    
-    
+ 
     shader_mixer.begin();
     
+    //--------------------------send the textures
     
+    //this gets bound to tex0 when u do this way
+    //for some reason i can't just erase this and move on
+    //so replace this with a useful texture at some point
+    //haha but whenever i replace this then the feedback textures dissapear.
+    //fuckin a
+    fbo_feedback.draw(0,0);
     
+    shader_mixer.setUniformTexture("ndi",ndi_fbo.getTexture(),1);
+    shader_mixer.setUniformTexture("cam1",cam1.getTexture(),2);
+    shader_mixer.setUniformTexture("cam2",cam2.getTexture(),3);
     
-    
-    
+    shader_mixer.setUniformTexture("fb0",pastFrames[(abs(framedelayoffset-fbob-gui->fb0_delay_amount-(int(fbob*c8))-abs(int(fbob*lfo(gui->fb0_delay_lfo_amp,fb0_theta_delay,0))))-1)%fbob].getTexture(),4);
+    shader_mixer.setUniformTexture("fb1",pastFrames[(abs(framedelayoffset-fbob-gui->fb1_delay_amount-(int(fbob*c21))-abs(int(fbob*lfo(gui->fb1_delay_lfo_amp,fb1_theta_delay,0))))-1)%fbob].getTexture(),5);
+    shader_mixer.setUniformTexture("fb2",pastFrames[(abs(framedelayoffset-fbob-gui->fb2_delay_amount-abs(int(fbob*lfo(gui->fb2_delay_lfo_amp,fb2_theta_delay,0))))-1)%fbob].getTexture(),6);
+    shader_mixer.setUniformTexture("fb3",pastFrames[(abs(framedelayoffset-fbob-gui->fb3_delay_amount-abs(int(fbob*lfo(gui->fb3_delay_lfo_amp,fb3_theta_delay,0))))-1)%fbob].getTexture(),7);
     
     shader_mixer.setUniform1f("width", ofGetWidth());
-    
     shader_mixer.setUniform1f("height", ofGetHeight());
     
     shader_mixer.setUniform1f("cam1_scale", gui->cam1_scale);
     shader_mixer.setUniform1f("cam2_scale", gui->cam2_scale);
     
-    
-    
-    
-    
-    
-    //fb0 lfos
-    fb0_theta_mix+=.01*(gui->fb0_mix_lfo_theta);
-    fb0_theta_delay+=.01*(gui->fb0_delay_lfo_theta);
-    fb0_theta_hue+=.01*(gui->fb0_hue_lfo_theta);
-    fb0_theta_saturation+=.01*(gui->fb0_saturation_lfo_theta);
-    fb0_theta_bright+=.01*(gui->fb0_bright_lfo_theta);
-    
-    fb0_theta_huexmod+=.01*(gui->fb0_huexmod_lfo_theta);
-    fb0_theta_huexoffset+=.01*(gui->fb0_huexoffset_lfo_theta);
-    fb0_theta_huexlfo+=.01*(gui->fb0_huexlfo_lfo_theta);
-    
-    fb0_theta_x+=.01*(gui->fb0_x_lfo_theta);
-    fb0_theta_y+=.01*(gui->fb0_y_lfo_theta);
-    fb0_theta_z+=.01*(gui->fb0_z_lfo_theta);
-    fb0_theta_rotate+=.01*(gui->fb0_rotate_lfo_theta);
-    
-    //fb1 lfos
-    fb1_theta_mix+=.01*(gui->fb1_mix_lfo_theta);
-    fb1_theta_delay+=.01*(gui->fb1_delay_lfo_theta);
-    fb1_theta_hue+=.01*(gui->fb1_hue_lfo_theta);
-    fb1_theta_saturation+=.01*(gui->fb1_saturation_lfo_theta);
-    fb1_theta_bright+=.01*(gui->fb1_bright_lfo_theta);
-    
-    fb1_theta_huexmod+=.01*(gui->fb1_huexmod_lfo_theta);
-    fb1_theta_huexoffset+=.01*(gui->fb1_huexoffset_lfo_theta);
-    fb1_theta_huexlfo+=.01*(gui->fb1_huexlfo_lfo_theta);
-    
-    fb1_theta_x+=.01*(gui->fb1_x_lfo_theta);
-    fb1_theta_y+=.01*(gui->fb1_y_lfo_theta);
-    fb1_theta_z+=.01*(gui->fb1_z_lfo_theta);
-    fb1_theta_rotate+=.01*(gui->fb1_rotate_lfo_theta);
-    
-    //fb2 lfos
-    fb2_theta_mix+=.01*(gui->fb2_mix_lfo_theta);
-    fb2_theta_delay+=.01*(gui->fb2_delay_lfo_theta);
-    fb2_theta_hue+=.01*(gui->fb2_hue_lfo_theta);
-    fb2_theta_saturation+=.01*(gui->fb2_saturation_lfo_theta);
-    fb2_theta_bright+=.01*(gui->fb2_bright_lfo_theta);
-    
-    fb2_theta_huexmod+=.01*(gui->fb2_huexmod_lfo_theta);
-    fb2_theta_huexoffset+=.01*(gui->fb2_huexoffset_lfo_theta);
-    fb2_theta_huexlfo+=.01*(gui->fb2_huexlfo_lfo_theta);
-    
-    fb2_theta_x+=.01*(gui->fb2_x_lfo_theta);
-    fb2_theta_y+=.01*(gui->fb2_y_lfo_theta);
-    fb2_theta_z+=.01*(gui->fb2_z_lfo_theta);
-    fb2_theta_rotate+=.01*(gui->fb2_rotate_lfo_theta);
-    
-    //fb3 lfos
-    
-    fb3_theta_mix+=.01*(gui->fb3_mix_lfo_theta);
-    fb3_theta_delay+=.01*(gui->fb3_delay_lfo_theta);
-    fb3_theta_hue+=.01*(gui->fb3_hue_lfo_theta);
-    fb3_theta_saturation+=.01*(gui->fb3_saturation_lfo_theta);
-    fb3_theta_bright+=.01*(gui->fb3_bright_lfo_theta);
-    
-    fb3_theta_huexmod+=.01*(gui->fb3_huexmod_lfo_theta);
-    fb3_theta_huexoffset+=.01*(gui->fb3_huexoffset_lfo_theta);
-    fb3_theta_huexlfo+=.01*(gui->fb3_huexlfo_lfo_theta);
-    
-    fb3_theta_x+=.01*(gui->fb3_x_lfo_theta);
-    fb3_theta_y+=.01*(gui->fb3_y_lfo_theta);
-    fb3_theta_z+=.01*(gui->fb3_z_lfo_theta);
-    fb3_theta_rotate+=.01*(gui->fb3_rotate_lfo_theta);
-
     ofVec3f hsb_x;
     ofVec3f hue_x;
     ofVec3f fb_modswitch;
     ofVec3f fb_rescale;
+    
+    
     //fb0
+
+    shader_mixer.setUniform1f("fb0lumakeyvalue", gui->fb0_key_value+c6+lfo(gui->fb0_lumakeyvalue_lfo_amp,fb0_theta_lumakeyvalue,0));
+    shader_mixer.setUniform1f("fb0lumakeythresh", gui->fb0_key_threshold+lfo(gui->fb0_lumakeythreshold_lfo_amp,fb0_theta_lumakeythreshold,0));
+    shader_mixer.setUniform1f("fb0blend", gui->fb0_mix+lfo(gui->fb0_mix_lfo_amp,fb0_theta_mix,0)+c7*2.0f);
     
-    
-    shader_mixer.setUniform1f("fb0lumakeyvalue", gui->fb0_key_value+c6);
-    shader_mixer.setUniform1f("fb0lumakeythresh", 1);
     shader_mixer.setUniform1i("fb0mix", 2);
     shader_mixer.setUniform1i("fb0_toroid_switch", gui->fb0_toroid_switch);
     
-    
-    
-    shader_mixer.setUniform1f("fb0blend", gui->fb0_mix+lfo(gui->fb0_mix_lfo_amp,fb0_theta_mix,0)+c7*2.0f);
     
     hsb_x.set((gui->fb0_hue+lfo(gui->fb0_hue_lfo_amp,fb0_theta_hue,0))/10+c13*.2f,
               (gui->fb0_saturation+lfo(gui->fb0_saturation_lfo_amp,fb0_theta_saturation,0))/10+c14*.2f,
@@ -615,25 +458,47 @@ void ofApp::draw() {
     hue_x.set((gui->fb0_huex_mod+lfo(gui->fb0_huexmod_lfo_amp,fb0_theta_huexmod,0))/10-c16,
               (gui->fb0_huex_offset+lfo(gui->fb0_huexoffset_lfo_amp,fb0_theta_huexoffset,0))/10+c17*2.0f,
               (gui->fb0_huex_lfo+lfo(gui->fb0_huexlfo_lfo_amp,fb0_theta_huexlfo,0))/10+c18*2.0f);
-    shader_mixer.setUniform3f("fb0_hue_x",hue_x);
     
-   
-     
+    shader_mixer.setUniform3f("fb0_hue_x",hue_x);
     
     fb_modswitch.set(gui->fb0_hue_invert,gui->fb0_saturation_invert,gui->fb0_bright_invert);
     shader_mixer.setUniform3f("fb0_modswitch",fb_modswitch);
     
-    
-   
     shader_mixer.setUniform3f("fb0_rescale",ofVec3f(gui->fb0_x_displace+lfo(gui->fb0_x_lfo_amp,fb0_theta_x,0)+c9*40.0f,
                                                     gui->fb0_y_displace+lfo(gui->fb0_y_lfo_amp,fb0_theta_y,0)+c10*40.0f,
-                                                    gui->fb0_z_displace/100+lfo(gui->fb0_z_lfo_amp,fb0_theta_z,0))+c11);
-    shader_mixer.setUniform1f("fb0_rotate",(gui->fb0_rotate)+lfo(gui->fb0_rotate_lfo_amp,fb0_theta_rotate,0)+c12*6.18f);
+                                                    gui->fb0_z_displace/100.0f+lfo(gui->fb0_z_lfo_amp,fb0_theta_z,0)/100.0f+c11));
+    
+    shader_mixer.setUniform1f("fb0_rotate",(gui->fb0_rotate)+lfo(gui->fb0_rotate_lfo_amp,fb0_theta_rotate,0)+c12);
+    
+    //fb0 tex_mod
+    shader_mixer.setUniform1f("tex_fb0lumakeyvalue", gui->tex_fb0_key_value);
+    shader_mixer.setUniform1f("tex_fb0lumakeythresh", gui->tex_fb0_key_threshold);
+    shader_mixer.setUniform1f("tex_fb0blend", gui->tex_fb0_mix);
+    
+    shader_mixer.setUniform3f("tex_fb0_hsb_x",ofVec3f(gui->tex_fb0_hue,gui->tex_fb0_saturation,gui->tex_fb0_bright));
+    
+    shader_mixer.setUniform3f("tex_fb0_hue_x",ofVec3f(gui->tex_fb0_huex_mod,gui->tex_fb0_huex_offset,gui->tex_fb0_huex_lfo));
+    //shader_mixer.setUniform3f("tex_fb0_hsb_x",ofVec3f(1.0,1.0,1.0));
+    
+    shader_mixer.setUniform3f("tex_fb0_rescale",ofVec3f(gui->tex_fb0_x_displace, gui->tex_fb0_y_displace, gui->tex_fb0_z_displace/100.0f));
+                              
+    shader_mixer.setUniform1f("tex_fb0_rotate",(gui->tex_fb0_rotate));
+    
+    ofVec2f fb0_texmod_logic;
+    if(gui->fb0_texmod_select==1){
+        fb0_texmod_logic.set(1,0);
+    }
+    
+    if(gui->fb0_texmod_select==2){
+        fb0_texmod_logic.set(0,1);
+    }
+    
+    shader_mixer.setUniform2f("fb0_texmod_logic",fb0_texmod_logic);
     
     //fb1
     
-    shader_mixer.setUniform1f("fb1lumakeyvalue", gui->fb1_key_value+c19);
-    shader_mixer.setUniform1f("fb1lumakeythresh", 1);
+    shader_mixer.setUniform1f("fb1lumakeyvalue", gui->fb1_key_value+c19+lfo(gui->fb1_lumakeyvalue_lfo_amp,fb1_theta_lumakeyvalue,0));
+    shader_mixer.setUniform1f("fb1lumakeythresh", gui->fb1_key_threshold+lfo(gui->fb1_lumakeythreshold_lfo_amp,fb1_theta_lumakeythreshold,0));
     shader_mixer.setUniform1i("fb1mix", 2);
     shader_mixer.setUniform1i("fb1_toroid_switch", gui->fb1_toroid_switch);
     
@@ -654,16 +519,42 @@ void ofApp::draw() {
     fb_modswitch.set(gui->fb1_hue_invert,gui->fb1_saturation_invert,gui->fb1_bright_invert);
     shader_mixer.setUniform3f("fb1_modswitch",fb_modswitch);
    
-    shader_mixer.setUniform3f("fb1_rescale",ofVec3f(gui->fb1_x_displace+lfo(gui->fb1_x_lfo_amp,fb1_theta_x,0)+c22*40.0f,
-                                                    gui->fb1_y_displace+lfo(gui->fb1_y_lfo_amp,fb1_theta_y,0)+c23*40.0f,
-                                                    gui->fb1_z_displace/100+lfo(gui->fb1_z_lfo_amp,fb1_theta_z,0))+c24);
+    shader_mixer.setUniform3f("fb1_rescale",ofVec3f(gui->fb1_x_displace+lfo(gui->fb1_x_lfo_amp,fb1_theta_x,0)+c9*40.0f,
+                                                    gui->fb1_y_displace+lfo(gui->fb1_y_lfo_amp,fb1_theta_y,0)+c10*40.0f,
+                                                    gui->fb1_z_displace/100.0f+lfo(gui->fb1_z_lfo_amp,fb1_theta_z,0)/100.0f+c24));
     shader_mixer.setUniform1f("fb1_rotate",(gui->fb1_rotate)+lfo(gui->fb1_rotate_lfo_amp,fb1_theta_rotate,0)+c12*6.18f);
+    
+    //fb1 tex_mod
+    shader_mixer.setUniform1f("tex_fb1lumakeyvalue", gui->tex_fb1_key_value);
+    shader_mixer.setUniform1f("tex_fb1lumakeythresh", gui->tex_fb1_key_threshold);
+    shader_mixer.setUniform1f("tex_fb1blend", gui->tex_fb1_mix);
+    
+    shader_mixer.setUniform3f("tex_fb1_hsb_x",ofVec3f(gui->tex_fb1_hue,gui->tex_fb1_saturation,gui->tex_fb1_bright));
+    
+    shader_mixer.setUniform3f("tex_fb1_hue_x",ofVec3f(gui->tex_fb1_huex_mod,gui->tex_fb1_huex_offset,gui->tex_fb1_huex_lfo));
+    //shader_mixer.setUniform3f("tex_fb1_hsb_x",ofVec3f(1.0,1.0,1.0));
+    
+    shader_mixer.setUniform3f("tex_fb1_rescale",ofVec3f(gui->tex_fb1_x_displace, gui->tex_fb1_y_displace, gui->tex_fb1_z_displace/100.0f));
+    
+    shader_mixer.setUniform1f("tex_fb1_rotate",(gui->tex_fb1_rotate));
+    
+    ofVec2f fb1_texmod_logic;
+    if(gui->fb1_texmod_select==1){
+        fb1_texmod_logic.set(1,0);
+    }
+    
+    if(gui->fb1_texmod_select==2){
+        fb1_texmod_logic.set(0,1);
+    }
+    
+    shader_mixer.setUniform2f("fb1_texmod_logic",fb1_texmod_logic);
+    
     
     //fb2
     
    
     shader_mixer.setUniform1f("fb2lumakeyvalue", gui->fb2_key_value);
-    shader_mixer.setUniform1f("fb2lumakeythresh", 1);
+    shader_mixer.setUniform1f("fb2lumakeythresh", gui->fb2_key_threshold);
     shader_mixer.setUniform1i("fb2mix", 2);
     shader_mixer.setUniform1i("fb2_toroid_switch", gui->fb2_toroid_switch);
     
@@ -683,16 +574,43 @@ void ofApp::draw() {
     fb_modswitch.set(gui->fb2_hue_invert,gui->fb2_saturation_invert,gui->fb2_bright_invert);
     shader_mixer.setUniform3f("fb2_modswitch",fb_modswitch);
     
-    shader_mixer.setUniform3f("fb2_rescale",ofVec3f(gui->fb2_x_displace+lfo(gui->fb2_x_lfo_amp,fb2_theta_x,0),
-                                                    gui->fb2_y_displace+lfo(gui->fb2_y_lfo_amp,fb2_theta_y,0),
-                                                    gui->fb2_z_displace/100+lfo(gui->fb2_z_lfo_amp,fb2_theta_z,0)));
+    shader_mixer.setUniform3f("fb2_rescale",ofVec3f(gui->fb2_x_displace+lfo(gui->fb2_x_lfo_amp,fb2_theta_x,0)+c9*40.0f,
+                                                    gui->fb2_y_displace+lfo(gui->fb2_y_lfo_amp,fb2_theta_y,0)+c10*40.0f,
+                                                    gui->fb2_z_displace/100.0f+lfo(gui->fb2_z_lfo_amp,fb2_theta_z,0)/100.0f));
+    
     shader_mixer.setUniform1f("fb2_rotate",(gui->fb2_rotate)+lfo(gui->fb2_rotate_lfo_amp,fb2_theta_rotate,0));
+    
+    
+    //fb2 tex_mod
+    shader_mixer.setUniform1f("tex_fb2lumakeyvalue", gui->tex_fb2_key_value);
+    shader_mixer.setUniform1f("tex_fb2lumakeythresh", gui->tex_fb2_key_threshold);
+    shader_mixer.setUniform1f("tex_fb2blend", gui->tex_fb2_mix);
+    
+    shader_mixer.setUniform3f("tex_fb2_hsb_x",ofVec3f(gui->tex_fb2_hue,gui->tex_fb2_saturation,gui->tex_fb2_bright));
+    
+    shader_mixer.setUniform3f("tex_fb2_hue_x",ofVec3f(gui->tex_fb2_huex_mod,gui->tex_fb2_huex_offset,gui->tex_fb2_huex_lfo));
+    //shader_mixer.setUniform3f("tex_fb2_hsb_x",ofVec3f(1.0,1.0,1.0));
+    
+    shader_mixer.setUniform3f("tex_fb2_rescale",ofVec3f(gui->tex_fb2_x_displace, gui->tex_fb2_y_displace, gui->tex_fb2_z_displace/100.0f));
+    
+    shader_mixer.setUniform1f("tex_fb2_rotate",(gui->tex_fb2_rotate));
+    
+    ofVec2f fb2_texmod_logic;
+    if(gui->fb2_texmod_select==1){
+        fb2_texmod_logic.set(1,0);
+    }
+    
+    if(gui->fb2_texmod_select==2){
+        fb2_texmod_logic.set(0,1);
+    }
+    
+    shader_mixer.setUniform2f("fb2_texmod_logic",fb2_texmod_logic);
     
     
     //fb3
    
     shader_mixer.setUniform1f("fb3lumakeyvalue", gui->fb3_key_value);
-    shader_mixer.setUniform1f("fb3lumakeythresh", 1);
+    shader_mixer.setUniform1f("fb3lumakeythresh", gui->fb3_key_threshold);
     shader_mixer.setUniform1i("fb3mix", 2);
     shader_mixer.setUniform1i("fb3_toroid_switch", gui->fb3_toroid_switch);
     
@@ -714,9 +632,34 @@ void ofApp::draw() {
     
     shader_mixer.setUniform3f("fb3_rescale",ofVec3f(gui->fb3_x_displace+lfo(gui->fb3_x_lfo_amp,fb3_theta_x,0),
                                                     gui->fb3_y_displace+lfo(gui->fb3_y_lfo_amp,fb3_theta_y,0),
-                                                    gui->fb3_z_displace/100+lfo(gui->fb3_z_lfo_amp,fb3_theta_z,0)));
+                                                    gui->fb3_z_displace/100+lfo(gui->fb3_z_lfo_amp,fb3_theta_z,0)/100.0f));
+    
     shader_mixer.setUniform1f("fb3_rotate",(gui->fb3_rotate)+lfo(gui->fb3_rotate_lfo_amp,fb3_theta_rotate,0));
     
+    //fb3 tex_mod
+    shader_mixer.setUniform1f("tex_fb3lumakeyvalue", gui->tex_fb3_key_value);
+    shader_mixer.setUniform1f("tex_fb3lumakeythresh", gui->tex_fb3_key_threshold);
+    shader_mixer.setUniform1f("tex_fb3blend", gui->tex_fb3_mix);
+    
+    shader_mixer.setUniform3f("tex_fb3_hsb_x",ofVec3f(gui->tex_fb3_hue,gui->tex_fb3_saturation,gui->tex_fb3_bright));
+    
+    shader_mixer.setUniform3f("tex_fb3_hue_x",ofVec3f(gui->tex_fb3_huex_mod,gui->tex_fb3_huex_offset,gui->tex_fb3_huex_lfo));
+    //shader_mixer.setUniform3f("tex_fb3_hsb_x",ofVec3f(1.0,1.0,1.0));
+    
+    shader_mixer.setUniform3f("tex_fb3_rescale",ofVec3f(gui->tex_fb3_x_displace, gui->tex_fb3_y_displace, gui->tex_fb3_z_displace/100.0f));
+    
+    shader_mixer.setUniform1f("tex_fb3_rotate",(gui->tex_fb3_rotate));
+    
+    ofVec2f fb3_texmod_logic;
+    if(gui->fb3_texmod_select==1){
+        fb3_texmod_logic.set(1,0);
+    }
+    
+    if(gui->fb3_texmod_select==2){
+        fb3_texmod_logic.set(0,1);
+    }
+    
+    shader_mixer.setUniform2f("fb3_texmod_logic",fb3_texmod_logic);
     
     
     
@@ -758,16 +701,13 @@ void ofApp::draw() {
     //ch1
     //vectorize all this
     
-    shader_mixer.setUniform1f("channel1hue_x", gui->ch1_hue+c1*5.0);
-    shader_mixer.setUniform1f("channel1saturation_x", gui->ch1_saturation+c2*5.0);
-    shader_mixer.setUniform1f("channel1bright_x", gui->ch1_bright+c3*5.0);
+    shader_mixer.setUniform1f("channel1hue_x", gui->ch1_hue+c1*5.0+lfo(gui->ch1_hue_lfo_amp,ch1_theta_hue,0));
+    shader_mixer.setUniform1f("channel1saturation_x", gui->ch1_saturation+c2*5.0+lfo(gui->ch1_saturation_lfo_amp,ch1_theta_saturation,0));
+    shader_mixer.setUniform1f("channel1bright_x", gui->ch1_bright+c3*5.0+abs(lfo(gui->ch1_bright_lfo_amp,ch1_theta_bright,0)));
     
     shader_mixer.setUniform1i("channel1satwrap", gui->ch1_saturation_wrap);
     shader_mixer.setUniform1i("channel1brightwrap", gui->ch1_bright_wrap);
     
-    shader_mixer.setUniform1i("ch1hue_powmaptoggle", gui->ch1_hue_powmap_toggle);
-    shader_mixer.setUniform1i("ch1sat_powmaptoggle", gui->ch1_saturation_powmap_toggle);
-    shader_mixer.setUniform1i("ch1bright_powmaptoggle", gui->ch1_bright_powmap_toggle);
     
     shader_mixer.setUniform1i("ch1hue_inverttoggle", gui->ch1_hue_alt_invert_toggle);
     shader_mixer.setUniform1i("ch1sat_inverttoggle", gui->ch1_saturation_alt_invert_toggle);
@@ -781,19 +721,14 @@ void ofApp::draw() {
     
     
     //ch2
-    shader_mixer.setUniform1f("channel2bright_x", gui->ch2_bright);
-    shader_mixer.setUniform1f("channel2hue_x", gui->ch2_hue);
-    shader_mixer.setUniform1f("channel2saturation_x", gui->ch2_saturation);
+    shader_mixer.setUniform1f("channel2bright_x", gui->ch2_bright+lfo(gui->ch2_bright_lfo_amp,ch2_theta_bright,0));
+    shader_mixer.setUniform1f("channel2hue_x", gui->ch2_hue+lfo(gui->ch2_hue_lfo_amp,ch2_theta_hue,0));
+    shader_mixer.setUniform1f("channel2saturation_x", gui->ch2_saturation+lfo(gui->ch2_saturation_lfo_amp,ch2_theta_saturation,0));
     
     
     
     shader_mixer.setUniform1i("channel2satwrap", gui->ch2_saturation_wrap);
     shader_mixer.setUniform1i("channel2brightwrap", gui->ch2_bright_wrap);
-    
-    
-    shader_mixer.setUniform1i("ch2hue_powmaptoggle", gui->ch2_hue_powmap_toggle);
-    shader_mixer.setUniform1i("ch2sat_powmaptoggle", gui->ch2_saturation_powmap_toggle);
-    shader_mixer.setUniform1i("ch2bright_powmaptoggle", gui->ch2_bright_powmap_toggle);
     
     shader_mixer.setUniform1i("ch2hue_inverttoggle", gui->ch2_hue_alt_invert_toggle);
     shader_mixer.setUniform1i("ch2sat_inverttoggle", gui->ch2_saturation_alt_invert_toggle);
@@ -817,21 +752,7 @@ void ofApp::draw() {
     shader_mixer.setUniform2f("cam1dimensions",ofVec2f(cam1.getWidth(),cam1.getHeight()));
     shader_mixer.setUniform2f("cam2dimensions",ofVec2f(cam2.getWidth(),cam2.getHeight()));
     
-    
-    
-    
-    
-   
-    
-    
-    
-   
-    
-    
-    
-    
-    
-    
+
     //h and v flips
     shader_mixer.setUniform1i("cam1_hflip_switch", gui->cam1_hflip_switch);
     shader_mixer.setUniform1i("cam1_vflip_switch", gui->cam1_vflip_switch);
@@ -853,185 +774,122 @@ void ofApp::draw() {
     
     //cam1
     shader_mixer.setUniform1i("cam1_pixel_switch",gui->cam1_pixel_switch);
-    shader_mixer.setUniform1i("cam1_pixel_scale",gui->cam1_pixel_scale);
-    shader_mixer.setUniform1f("cam1_pixel_mix",gui->cam1_pixel_mix);
-    shader_mixer.setUniform1f("cam1_pixel_brightscale",gui->cam1_pixel_brightscale);
+    shader_mixer.setUniform1i("cam1_pixel_scale_x",gui->cam1_pixel_scale_x+lfo(gui->cam1_pixel_scale_x_lfo_amp,cam1_theta_pixel_scale_x,0));
+    shader_mixer.setUniform1i("cam1_pixel_scale_y",gui->cam1_pixel_scale_y+lfo(gui->cam1_pixel_scale_y_lfo_amp,cam1_theta_pixel_scale_y,0));
+    shader_mixer.setUniform1f("cam1_pixel_mix",gui->cam1_pixel_mix+lfo(gui->cam1_pixel_mix_lfo_amp,cam1_theta_pixel_mix,0));
+    shader_mixer.setUniform1f("cam1_pixel_brightscale",gui->cam1_pixel_brightscale+lfo(gui->cam1_pixel_brightscale_lfo_amp,cam1_theta_pixel_brightscale,0));
     
     //cam2
     shader_mixer.setUniform1i("cam2_pixel_switch",gui->cam2_pixel_switch);
-    shader_mixer.setUniform1i("cam2_pixel_scale",gui->cam2_pixel_scale);
-    shader_mixer.setUniform1f("cam2_pixel_mix",gui->cam2_pixel_mix);
-    shader_mixer.setUniform1f("cam2_pixel_brightscale",gui->cam2_pixel_brightscale);
+    
+    shader_mixer.setUniform1i("cam2_pixel_scale_x",gui->cam2_pixel_scale_x+lfo(gui->cam2_pixel_scale_x_lfo_amp,cam2_theta_pixel_scale_x,0));
+    shader_mixer.setUniform1i("cam2_pixel_scale_y",gui->cam2_pixel_scale_y+lfo(gui->cam2_pixel_scale_y_lfo_amp,cam2_theta_pixel_scale_y,0));
+    shader_mixer.setUniform1f("cam2_pixel_mix",gui->cam2_pixel_mix+lfo(gui->cam2_pixel_mix_lfo_amp,cam2_theta_pixel_mix,0));
+    shader_mixer.setUniform1f("cam2_pixel_brightscale",gui->cam2_pixel_brightscale+lfo(gui->cam2_pixel_brightscale_lfo_amp,cam2_theta_pixel_brightscale,0));
+    
+    
+    
+    //ndi
+    shader_mixer.setUniform1i("ndi_pixel_switch",gui->ndi_pixel_switch);
+    shader_mixer.setUniform1i("ndi_pixel_scale_x",gui->ndi_pixel_scale_x+lfo(gui->ndi_pixel_scale_x_lfo_amp,ndi_theta_pixel_scale_x,0));
+    shader_mixer.setUniform1i("ndi_pixel_scale_y",gui->ndi_pixel_scale_y+lfo(gui->ndi_pixel_scale_y_lfo_amp,ndi_theta_pixel_scale_y,0));
+    shader_mixer.setUniform1f("ndi_pixel_mix",gui->ndi_pixel_mix+lfo(gui->ndi_pixel_mix_lfo_amp,ndi_theta_pixel_mix,0));
+    shader_mixer.setUniform1f("ndi_pixel_brightscale",gui->ndi_pixel_brightscale+lfo(gui->ndi_pixel_brightscale_lfo_amp,ndi_theta_pixel_brightscale,0));
     
     //fb0
     shader_mixer.setUniform1i("fb0_pixel_switch",gui->fb0_pixel_switch);
-    shader_mixer.setUniform1i("fb0_pixel_scale",gui->fb0_pixel_scale);
-    shader_mixer.setUniform1f("fb0_pixel_mix",gui->fb0_pixel_mix);
-    shader_mixer.setUniform1f("fb0_pixel_brightscale",gui->fb0_pixel_brightscale);
+    shader_mixer.setUniform1i("fb0_pixel_scale_x",gui->fb0_pixel_scale_x+lfo(gui->fb0_pixel_scale_x_lfo_amp,fb0_theta_pixel_scale_x,0));
+    shader_mixer.setUniform1i("fb0_pixel_scale_y",gui->fb0_pixel_scale_y+lfo(gui->fb0_pixel_scale_y_lfo_amp,fb0_theta_pixel_scale_y,0));
+    shader_mixer.setUniform1f("fb0_pixel_mix",gui->fb0_pixel_mix+lfo(gui->fb0_pixel_mix_lfo_amp,fb0_theta_pixel_mix,0));
+    shader_mixer.setUniform1f("fb0_pixel_brightscale",gui->fb0_pixel_brightscale+lfo(gui->fb0_pixel_brightscale_lfo_amp,fb0_theta_pixel_brightscale,0));
+    
+    //fb0 texmods
+    ofVec2f fb0_pixel_texmod_logic;
+    if(gui->fb0_pixel_texmod_select==1){
+        fb0_pixel_texmod_logic.set(1,0);
+    }
+    
+    if(gui->fb0_pixel_texmod_select==2){
+        fb0_pixel_texmod_logic.set(0,1);
+    }
+    shader_mixer.setUniform2f("fb0_pixel_texmod_logic",fb0_pixel_texmod_logic);
+    
+    shader_mixer.setUniform1i("texmod_fb0_pixel_scale_x",gui->texmod_fb0_pixel_scale_x);
+    shader_mixer.setUniform1i("texmod_fb0_pixel_scale_y",gui->texmod_fb0_pixel_scale_y);
+    shader_mixer.setUniform1f("texmod_fb0_pixel_mix",gui->texmod_fb0_pixel_mix);
+    shader_mixer.setUniform1f("texmod_fb0_pixel_brightscale",gui->texmod_fb0_pixel_brightscale);
+    
     //fb1
     shader_mixer.setUniform1i("fb1_pixel_switch",gui->fb1_pixel_switch);
-    shader_mixer.setUniform1i("fb1_pixel_scale",gui->fb1_pixel_scale);
-    shader_mixer.setUniform1f("fb1_pixel_mix",gui->fb1_pixel_mix);
-    shader_mixer.setUniform1f("fb1_pixel_brightscale",gui->fb1_pixel_brightscale);
+    shader_mixer.setUniform1i("fb1_pixel_scale_x",gui->fb1_pixel_scale_x+lfo(gui->fb1_pixel_scale_x_lfo_amp,fb1_theta_pixel_scale_x,0));
+    shader_mixer.setUniform1i("fb1_pixel_scale_y",gui->fb1_pixel_scale_y+lfo(gui->fb1_pixel_scale_y_lfo_amp,fb1_theta_pixel_scale_y,0));
+    shader_mixer.setUniform1f("fb1_pixel_mix",gui->fb1_pixel_mix+lfo(gui->fb1_pixel_mix_lfo_amp,fb1_theta_pixel_mix,0));
+    shader_mixer.setUniform1f("fb1_pixel_brightscale",gui->fb1_pixel_brightscale+lfo(gui->fb1_pixel_brightscale_lfo_amp,fb1_theta_pixel_brightscale,0));
+    
+    //fb1 texmods
+
+    ofVec2f fb1_pixel_texmod_logic;
+    if(gui->fb1_pixel_texmod_select==1){
+        fb1_pixel_texmod_logic.set(1,0);
+    }
+    
+    if(gui->fb1_pixel_texmod_select==2){
+        fb1_pixel_texmod_logic.set(0,1);
+    }
+    shader_mixer.setUniform2f("fb1_pixel_texmod_logic",fb1_pixel_texmod_logic);
+    shader_mixer.setUniform1i("texmod_fb1_pixel_scale_x",gui->texmod_fb1_pixel_scale_x);
+    shader_mixer.setUniform1i("texmod_fb1_pixel_scale_y",gui->texmod_fb1_pixel_scale_y);
+    shader_mixer.setUniform1f("texmod_fb1_pixel_mix",gui->texmod_fb1_pixel_mix);
+    shader_mixer.setUniform1f("texmod_fb1_pixel_brightscale",gui->texmod_fb1_pixel_brightscale);
     
     //fb2
     shader_mixer.setUniform1i("fb2_pixel_switch",gui->fb2_pixel_switch);
-    shader_mixer.setUniform1i("fb2_pixel_scale",gui->fb2_pixel_scale);
-    shader_mixer.setUniform1f("fb2_pixel_mix",gui->fb2_pixel_mix);
-    shader_mixer.setUniform1f("fb2_pixel_brightscale",gui->fb2_pixel_brightscale);
+    shader_mixer.setUniform1i("fb2_pixel_scale_x",gui->fb2_pixel_scale_x+lfo(gui->fb2_pixel_scale_x_lfo_amp,fb2_theta_pixel_scale_x,0));
+    shader_mixer.setUniform1i("fb2_pixel_scale_y",gui->fb2_pixel_scale_y+lfo(gui->fb2_pixel_scale_y_lfo_amp,fb2_theta_pixel_scale_y,0));
+    shader_mixer.setUniform1f("fb2_pixel_mix",gui->fb2_pixel_mix+lfo(gui->fb2_pixel_mix_lfo_amp,fb2_theta_pixel_mix,0));
+    shader_mixer.setUniform1f("fb2_pixel_brightscale",gui->fb2_pixel_brightscale+lfo(gui->fb2_pixel_brightscale_lfo_amp,fb2_theta_pixel_brightscale,0));
+    
+    //fb2 texmods
+    ofVec2f fb2_pixel_texmod_logic;
+    if(gui->fb2_pixel_texmod_select==1){
+        fb2_pixel_texmod_logic.set(1,0);
+    }
+    
+    if(gui->fb2_pixel_texmod_select==2){
+        fb2_pixel_texmod_logic.set(0,1);
+    }
+    shader_mixer.setUniform2f("fb2_pixel_texmod_logic",fb2_pixel_texmod_logic);
+    shader_mixer.setUniform1i("texmod_fb2_pixel_scale_x",gui->texmod_fb2_pixel_scale_x);
+    shader_mixer.setUniform1i("texmod_fb2_pixel_scale_y",gui->texmod_fb2_pixel_scale_y);
+    shader_mixer.setUniform1f("texmod_fb2_pixel_mix",gui->texmod_fb2_pixel_mix);
+    shader_mixer.setUniform1f("texmod_fb2_pixel_brightscale",gui->texmod_fb2_pixel_brightscale);
     
     //fb3
     shader_mixer.setUniform1i("fb3_pixel_switch",gui->fb3_pixel_switch);
-    shader_mixer.setUniform1i("fb3_pixel_scale",gui->fb3_pixel_scale);
-    shader_mixer.setUniform1f("fb3_pixel_mix",gui->fb3_pixel_mix);
-    shader_mixer.setUniform1f("fb3_pixel_brightscale",gui->fb3_pixel_brightscale);
+    shader_mixer.setUniform1i("fb3_pixel_scale_x",gui->fb3_pixel_scale_x+lfo(gui->fb3_pixel_scale_x_lfo_amp,fb3_theta_pixel_scale_x,0));
+    shader_mixer.setUniform1i("fb3_pixel_scale_y",gui->fb3_pixel_scale_y+lfo(gui->fb3_pixel_scale_y_lfo_amp,fb3_theta_pixel_scale_y,0));
+    shader_mixer.setUniform1f("fb3_pixel_mix",gui->fb3_pixel_mix+lfo(gui->fb3_pixel_mix_lfo_amp,fb3_theta_pixel_mix,0));
+    shader_mixer.setUniform1f("fb3_pixel_brightscale",gui->fb3_pixel_brightscale+lfo(gui->fb3_pixel_brightscale_lfo_amp,fb3_theta_pixel_brightscale,0));
+
+    //fb3 texmods
+    ofVec2f fb3_pixel_texmod_logic;
+    if(gui->fb3_pixel_texmod_select==1){
+        fb3_pixel_texmod_logic.set(1,0);
+    }
     
-    
-    
-    //--------------------------send the textures
-    
-    
-    //this gets bound to tex0 when u do this way
-    //for some reason i can't just erase this and move on
-    //so replace this with a useful texture at some point
-    fbo_feedback.draw(0,0);
-    //for some reason i get weird glitches in acessing textures in gl2 when i don't bind a texture like this before sending the others in more formally by setUniformTexture so if you understand why that is happening please let me know
-    
-    
-    //set a conditional statement of which fbo
-    shader_mixer.setUniformTexture("syphon",syphonTexture.getTexture(),1);
-    shader_mixer.setUniformTexture("cam1",cam1.getTexture(),2);
-    shader_mixer.setUniformTexture("cam2",cam2.getTexture(),3);
-    
-    
-    // int delay0=gui->fb0delayamnt;
-    //int delay1=gui->fb1delayamnt;
-    // int delay2=gui->fb2delayamnt;
-    // int delay3=gui->fb3delayamnt;
-    
-    
-    
-   
-    //  shader_mixer.setUniformTexture("fb0",pastFrames[(abs(framedelayoffset-fbob-delay0))%fbob].getTexture(),4);
-    
-    shader_mixer.setUniformTexture("fb0",pastFrames[(abs(framedelayoffset-fbob-gui->fb0_delay_amount-(int(fbob*c8))-abs(int(fbob*lfo(gui->fb0_delay_lfo_amp,fb0_theta_delay,0))))-1)%fbob].getTexture(),4);
-    shader_mixer.setUniformTexture("fb1",pastFrames[(abs(framedelayoffset-fbob-gui->fb1_delay_amount-(int(fbob*c21))-abs(int(fbob*lfo(gui->fb1_delay_lfo_amp,fb1_theta_delay,0))))-1)%fbob].getTexture(),5);
-    shader_mixer.setUniformTexture("fb2",pastFrames[(abs(framedelayoffset-fbob-gui->fb2_delay_amount-abs(int(fbob*lfo(gui->fb2_delay_lfo_amp,fb2_theta_delay,0))))-1)%fbob].getTexture(),6);
-    shader_mixer.setUniformTexture("fb3",pastFrames[(abs(framedelayoffset-fbob-gui->fb3_delay_amount-abs(int(fbob*lfo(gui->fb3_delay_lfo_amp,fb3_theta_delay,0))))-1)%fbob].getTexture(),7);
-    
-    
-    
-    //testing syphon as a texture sent into a channel
-    //currently replacing cam2
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    shader_mixer.setUniform1f("qq",qq);
-    
+    if(gui->fb3_pixel_texmod_select==2){
+        fb3_pixel_texmod_logic.set(0,1);
+    }
+    shader_mixer.setUniform2f("fb3_pixel_texmod_logic",fb3_pixel_texmod_logic);
+    shader_mixer.setUniform1i("texmod_fb3_pixel_scale_x",gui->texmod_fb3_pixel_scale_x);
+    shader_mixer.setUniform1i("texmod_fb3_pixel_scale_y",gui->texmod_fb3_pixel_scale_y);
+    shader_mixer.setUniform1f("texmod_fb3_pixel_mix",gui->texmod_fb3_pixel_mix);
+    shader_mixer.setUniform1f("texmod_fb3_pixel_brightscale",gui->texmod_fb3_pixel_brightscale);
     shader_mixer.end();
     
-    
-    //this bit is for just testing stuff with a pretty little rotating square
-    //you can just put whatever graphical code you want in this section and it will draw over everything
-    
-    // pnt_img.draw(0,0,ofGetWidth(),ofGetHeight());
-    
-    //additive vector synth zones
-    
-    /*
-     ofPushMatrix();
-     ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
-     
-     ofFill();
-     ofColor c=(0);
-     c.setHsb(127*(1+.5*sin(theta/100)),255,255);
-     ofSetColor(c);
-     // ofSetColor(255);
-     float radius=ofGetWidth()/4;
-     
-     for(float i=0;i<TWO_PI;i+=.01){
-     
-     int numberOfHarmonics=16;
-     float polar_x=0;
-     float polar_y=0;
-     float polar_z=0;
-     for(int j=1;j<numberOfHarmonics;j++){
-     //polar_x+=cos(j*i)*((1-amp)+amp*sin(theta-j));
-     //polar_y+=sin(j*i)*((1-amp)+amp*cos(theta-j));
-     
-     //polar_x+=cos(2*j*i)/(2*j);
-     //polar_y+=sin(2*j*i)/(2*j);
-     
-     polar_x+=cos(i*j-theta)*sin(theta);
-     polar_y+=sin(i*j+theta)*cos(theta);
-     // polar_z+=cos(theta*i);
-     
-     }//endjfor
-     
-     theta+=.001;
-     polar_x=radius*polar_x/numberOfHarmonics;
-     polar_y=radius*polar_y/numberOfHarmonics;
-     
-     ofPushMatrix();
-     
-     ofTranslate(polar_x,polar_y,polar_z);
-     ofDrawRectangle(0,0,1,1);
-     ofPopMatrix();
-     }//endifor
-     
-     ofPopMatrix();
-     
-     */
-    
-    
-    //perlin noise terrain experiment
-    
-    
-    
-    
-    /*
-     
-     float noiseVel = ofGetElapsedTimef()/16;
-     
-     int scale=40;
-     int w = ofGetWidth()/scale;
-     int h = ofGetHeight()/scale;
-     // ofNoFill();
-     int xoff=0;
-     int yoff=0;
-     ofPushMatrix();
-     ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
-     ofRotateXRad(PI/3);
-     for(int y=0; y<h; y++) {
-     yoff+=.1;
-     for(int x=0; x<w; x++) {
-     xoff+=.1;
-     int i = y * w + x;
-     float noiseValue = ofNoise(x * .1+xoff, y * .1+yoff, noiseVel);
-     
-     ofSetColor(255);
-     pnt_line.lineTo(x*scale-ofGetWidth()/2,y*scale-ofGetHeight()/2,50*noiseValue);
-     
-     
-     }//endxfor
-     pnt_line.draw();
-     pnt_line.clear();
-     }//endyfor
-     
-     ofPopMatrix();
-     
-     */
+    if(gui->hypercube_switch==1){
+        hypercube_draw();
+    }
     
     
     if(gui->tetrahedron_switch==1){
@@ -1051,44 +909,63 @@ void ofApp::draw() {
     }
     
     
+    
+    
+    
     fbo_draw.end();
     
-    //----------------------------------------------------------
-    
-    
-    
-    //sharpen and blur the composited image before it is drawn to screens and buffers
+    //--_-__--___-_--_------_---------____
     
     fbo_blur.begin();
     shader_blur.begin();
     fbo_draw.draw(0,0);
-    shader_blur.setUniform1f("blurAmnt",gui->blur_amount + c4*10);//+5*(midi_controls[25]+1)/2);
+    
+    if(gui->global_texmod_select==0){
+        shader_blur.setUniformTexture("texmod",cam1.getTexture(),8);
+    }
+    if(gui->global_texmod_select==1){
+        shader_blur.setUniformTexture("texmod",cam2.getTexture(),8);
+    }
+    if(gui->global_texmod_select==2){
+        shader_blur.setUniformTexture("texmod",ndi_fbo.getTexture(),8);
+    }
+    
+    shader_blur.setUniform1f("blur_amount",gui->blur_amount + c4*10+lfo(gui->blur_amount_lfo_amp,blur_theta_amount,0));//+5*(midi_controls[25]+1)/2);
+    shader_blur.setUniform1f("blur_radius",gui->blur_radius+lfo(gui->blur_radius_lfo_amp,blur_theta_radius,0));
+    shader_blur.setUniform1f("texmod_blur_amount",gui->texmod_blur_amount);
+    shader_blur.setUniform1f("texmod_blur_radius",gui->texmod_blur_radius);
     shader_blur.end();
-    
-    
     fbo_blur.end();
     
+   
     
-    
+    //sharpen back in the draw fbo
     fbo_draw.begin();
     
-    /*
-     shader_blur.begin();
-     fbo_blur.draw(0,0);
-     shader_blur.setUniform1f("blurAmnt",gui->blur_amount);
-    shader_blur.end();
-    */
-     
-     
-    //so add a radius and chi variable to this
-    //then figure out how to switch on and off and route properly
-   
     shader_sharpen.begin();
     fbo_blur.draw(0,0);
-    shader_sharpen.setUniform1f("sharpAmnt",gui->sharpen_amount+c5*.3);//+.3*(midi_controls[24]+1.0)/2.0);
-    shader_sharpen.setUniform1f("steppp",gui->sharpen_radius);
-    shader_sharpen.setUniform1f("sharpen_boost",gui->sharpen_boost+c5);
-    shader_sharpen.setUniform1f("chi",gui->sharpen_chi);
+    
+    
+    if(gui->global_texmod_select==0){
+        shader_sharpen.setUniformTexture("texmod",cam1.getTexture(),9);
+    }
+    if(gui->global_texmod_select==1){
+        shader_sharpen.setUniformTexture("texmod",cam2.getTexture(),9);
+    }
+    if(gui->global_texmod_select==2){
+        shader_sharpen.setUniformTexture("texmod",ndi_fbo.getTexture(),9);
+    }
+    
+    shader_sharpen.setUniform1f("texmod_sharpen_amount",gui->texmod_sharpen_amount);
+    shader_sharpen.setUniform1f("texmod_sharpen_radius",gui->texmod_sharpen_radius);
+    shader_sharpen.setUniform1f("texmod_sharpen_boost",gui->texmod_sharpen_boost);
+    
+    
+    //lets change sharpAMNT to be larger?
+    shader_sharpen.setUniform1f("sharpen_amount",gui->sharpen_amount+c5*.3+lfo(gui->sharpen_amount_lfo_amp,sharpen_theta_amount,0));//+.3*(midi_controls[24]+1.0)/2.0);
+    shader_sharpen.setUniform1f("sharpen_radius",gui->sharpen_radius+lfo(gui->sharpen_radius_lfo_amp,sharpen_theta_radius,0));
+    shader_sharpen.setUniform1f("sharpen_boost",gui->sharpen_boost+c5+lfo(gui->sharpen_boost_lfo_amp,sharpen_theta_boost,0));
+    shader_sharpen.setUniform1f("qq",qq);
     shader_sharpen.end();
    
     
@@ -1096,46 +973,31 @@ void ofApp::draw() {
     
     fbo_draw.end();
     
-    
     //___--_------___-_-_______-----___-
     
     /*this part gets drawn to screen*/
-    ofSetColor(ofColor::white);
     
-    ofPushMatrix();
-    //add seperate switchs for this and fbo
-    ofTranslate(ofGetWidth()/2.0,ofGetHeight()/2.0);
+    fbo_draw.draw(0,0);
     
-  
-    fbo_draw.draw(-ofGetWidth()/2.0,-ofGetHeight()/2.0);
-    ofPopMatrix();
-    //audiovisualizer biz
-  //feed the previous frame into position 0 (index0)
+    //ndi_fbo.draw(0,0);
+    //___--_------___-_-_______-----___-
     
+    //pass the frame back into the delay
     pastFrames[abs(fbob-framedelayoffset)-1].begin(); //eeettt
-    
-    
+
     ofPushMatrix();
-  
     //recenter the coordinates so 0,0 is at the center of the screen
     ofTranslate(ofGetWidth()/2,ofGetHeight()/2,0);
-   
-    //  ofRotateZRad(.01);
     ofTranslate(ff,gg,hh);
     ofRotateYRad(ss+gui->y_skew);
     ofRotateXRad(aa+gui->x_skew);
     ofRotateZRad(dd);
     ofRotateZRad(oo*TWO_PI/ii);
-    
-    
     fbo_draw.draw(-ofGetWidth()/2,-ofGetHeight()/2);
-    
-    //switch for the dry feed
-    //cam1.draw(-ofGetWidth()/2,-ofGetHeight()/2,2*cam1.getWidth(),2*cam1.getHeight());
     ofPopMatrix();
     
-    
     pastFrames[abs(fbob-framedelayoffset)-1].end(); //eeettt
+    
     //-----____---____---__-__---____-----_--_-
     
 
@@ -1143,10 +1005,7 @@ void ofApp::draw() {
   //  ofDrawBitmapString(" delayhead: "+ofToString(delayhead),10, ofGetHeight()-5 );
    
  
-    //add a switch for this
-    //if(gui->syphonOutput==1){
-        mainOutputSyphonServer.publishScreen();
-    //}
+    
     
     incIndex(); // increment framecount and framedelayoffset eeettt
 }
@@ -1157,10 +1016,361 @@ float ofApp::lfo(float amp, float rate,int shape){
     return amp*sin(rate);
 }
 
- 
+
+//_____----_-_-_-______---__---_--_----____--_-__-_-
+
+void ofApp::NDI_reciever_setup(string reciever_name){
+    auto findSource = [](const string &name_or_url) {
+        auto sources = ofxNDI::listSources();
+        if(name_or_url == "") {
+            return make_pair(ofxNDI::Source(), false);
+        }
+        auto found = find_if(begin(sources), end(sources), [name_or_url](const ofxNDI::Source &s) {
+            return ofIsStringInString(s.p_ndi_name, name_or_url) || ofIsStringInString(s.p_url_address, name_or_url);
+        });
+        if(found == end(sources)) {
+            ofLogWarning("ofxNDI") << "no NDI source found by string:" << name_or_url;
+            return make_pair(ofxNDI::Source(), false);
+        }
+        return make_pair(*found, true);
+    };
+    string name_or_url = "";//reciever_name;    // Specify name or address of expected NDI source. In case of blank or not found, receiver will grab default(which is found first) source.
+    auto result = findSource(name_or_url);
+    if(result.second ? ndi_receiver_.setup(result.first) : ndi_receiver_.setup()) {
+        ndi_video_.setup(ndi_receiver_);
+    }
+    
+}
+//-------------------------
+
+void ofApp::NDI_reciever_update(){
+    if(ndi_receiver_.isConnected()) {
+        ndi_video_.update();
+        if(ndi_video_.isFrameNew()) {
+            ndi_video_.decodeTo(ndi_pixels);
+        }
+    }
+    ndi_fbo.begin();
+    if(ndi_pixels.isAllocated()) {
+        //ofImage ndi_image;
+        ofPushMatrix();
+        ofTranslate(ndi_fbo.getWidth()/2,ndi_fbo.getHeight()/2);
+        ofTranslate(0,0,gui->ndi_scale);
+        ofImage(ndi_pixels).draw(-ofImage(ndi_pixels).getWidth()/2,-ofImage(ndi_pixels).getHeight()/2);
+        //ofImage(ndi_pixels).draw(0,0);
+        ofPopMatrix();
+    }
+    ndi_fbo.end();
+    
+    
+    
+}
+
+//------------------------------------------------
+
+void ofApp::NDI_sender_setup(string app_name){
+    
+    if(sender_.setup(app_name)) {
+        ndi_send_video_.setup(sender_);
+        ndi_send_video_.setAsync(true);
+    }
+    
+}
+
+//----
+
+void ofApp:: NDI_sender_update(){
+    ofPixels fbo_pixels;
+    fbo_draw.readToPixels(fbo_pixels);
+    ndi_send_video_.send(fbo_pixels);//getPixels());
+}
+
+//- ---
+
+void ofApp::lfo_update(){
+    
+    //ch1
+    ch1_theta_hue+=.01*(gui->ch1_hue_lfo_theta);
+    ch1_theta_saturation+=.01*(gui->ch1_saturation_lfo_theta);
+    ch1_theta_bright+=.01*(gui->ch1_bright_lfo_theta);
+    
+    //ch1
+    ch2_theta_hue+=.01*(gui->ch2_hue_lfo_theta);
+    ch2_theta_saturation+=.01*(gui->ch2_saturation_lfo_theta);
+    ch2_theta_bright+=.01*(gui->ch2_bright_lfo_theta);
+    
+    
+    //fb0 lfos
+    fb0_theta_mix+=.01*(gui->fb0_mix_lfo_theta);
+    fb0_theta_lumakeyvalue+=.01*(gui->fb0_lumakeyvalue_lfo_theta);
+    fb0_theta_lumakeythreshold+=.01*(gui->fb0_lumakeythreshold_lfo_theta);
+    fb0_theta_delay+=.01*(gui->fb0_delay_lfo_theta);
+    fb0_theta_hue+=.01*(gui->fb0_hue_lfo_theta);
+    fb0_theta_saturation+=.01*(gui->fb0_saturation_lfo_theta);
+    fb0_theta_bright+=.01*(gui->fb0_bright_lfo_theta);
+    
+    fb0_theta_huexmod+=.01*(gui->fb0_huexmod_lfo_theta);
+    fb0_theta_huexoffset+=.01*(gui->fb0_huexoffset_lfo_theta);
+    fb0_theta_huexlfo+=.01*(gui->fb0_huexlfo_lfo_theta);
+    
+    fb0_theta_x+=.01*(gui->fb0_x_lfo_theta);
+    fb0_theta_y+=.01*(gui->fb0_y_lfo_theta);
+    fb0_theta_z+=.01*(gui->fb0_z_lfo_theta);
+    fb0_theta_rotate+=.01*(gui->fb0_rotate_lfo_theta);
+    
+    //fb1 lfos
+    fb1_theta_mix+=.01*(gui->fb1_mix_lfo_theta);
+    fb1_theta_lumakeyvalue+=.01*(gui->fb1_lumakeyvalue_lfo_theta);
+    fb1_theta_lumakeythreshold+=.01*(gui->fb1_lumakeythreshold_lfo_theta);
+    fb1_theta_delay+=.01*(gui->fb1_delay_lfo_theta);
+    fb1_theta_hue+=.01*(gui->fb1_hue_lfo_theta);
+    fb1_theta_saturation+=.01*(gui->fb1_saturation_lfo_theta);
+    fb1_theta_bright+=.01*(gui->fb1_bright_lfo_theta);
+    
+    fb1_theta_huexmod+=.01*(gui->fb1_huexmod_lfo_theta);
+    fb1_theta_huexoffset+=.01*(gui->fb1_huexoffset_lfo_theta);
+    fb1_theta_huexlfo+=.01*(gui->fb1_huexlfo_lfo_theta);
+    
+    fb1_theta_x+=.01*(gui->fb1_x_lfo_theta);
+    fb1_theta_y+=.01*(gui->fb1_y_lfo_theta);
+    fb1_theta_z+=.01*(gui->fb1_z_lfo_theta);
+    fb1_theta_rotate+=.01*(gui->fb1_rotate_lfo_theta);
+    
+    //fb2 lfos
+    fb2_theta_lumakeyvalue+=.01*(gui->fb2_lumakeyvalue_lfo_theta);
+    fb2_theta_lumakeythreshold+=.01*(gui->fb2_lumakeythreshold_lfo_theta);
+    fb2_theta_mix+=.01*(gui->fb2_mix_lfo_theta);
+    fb2_theta_delay+=.01*(gui->fb2_delay_lfo_theta);
+    fb2_theta_hue+=.01*(gui->fb2_hue_lfo_theta);
+    fb2_theta_saturation+=.01*(gui->fb2_saturation_lfo_theta);
+    fb2_theta_bright+=.01*(gui->fb2_bright_lfo_theta);
+    
+    fb2_theta_huexmod+=.01*(gui->fb2_huexmod_lfo_theta);
+    fb2_theta_huexoffset+=.01*(gui->fb2_huexoffset_lfo_theta);
+    fb2_theta_huexlfo+=.01*(gui->fb2_huexlfo_lfo_theta);
+    
+    fb2_theta_x+=.01*(gui->fb2_x_lfo_theta);
+    fb2_theta_y+=.01*(gui->fb2_y_lfo_theta);
+    fb2_theta_z+=.01*(gui->fb2_z_lfo_theta);
+    fb2_theta_rotate+=.01*(gui->fb2_rotate_lfo_theta);
+    
+    //fb3 lfos
+    fb3_theta_lumakeyvalue+=.01*(gui->fb3_lumakeyvalue_lfo_theta);
+    fb3_theta_lumakeythreshold+=.01*(gui->fb3_lumakeythreshold_lfo_theta);
+    fb3_theta_mix+=.01*(gui->fb3_mix_lfo_theta);
+    fb3_theta_delay+=.01*(gui->fb3_delay_lfo_theta);
+    fb3_theta_hue+=.01*(gui->fb3_hue_lfo_theta);
+    fb3_theta_saturation+=.01*(gui->fb3_saturation_lfo_theta);
+    fb3_theta_bright+=.01*(gui->fb3_bright_lfo_theta);
+    
+    fb3_theta_huexmod+=.01*(gui->fb3_huexmod_lfo_theta);
+    fb3_theta_huexoffset+=.01*(gui->fb3_huexoffset_lfo_theta);
+    fb3_theta_huexlfo+=.01*(gui->fb3_huexlfo_lfo_theta);
+    
+    fb3_theta_x+=.01*(gui->fb3_x_lfo_theta);
+    fb3_theta_y+=.01*(gui->fb3_y_lfo_theta);
+    fb3_theta_z+=.01*(gui->fb3_z_lfo_theta);
+    fb3_theta_rotate+=.01*(gui->fb3_rotate_lfo_theta);
+
+    //global
+    
+    blur_theta_amount+=.01*(gui->blur_amount_lfo_theta);
+    blur_theta_radius+=.01*(gui->blur_radius_lfo_theta);
+    sharpen_theta_amount+=.01*(gui->sharpen_amount_lfo_theta);
+    sharpen_theta_radius+=.01*(gui->sharpen_radius_lfo_theta);
+    sharpen_theta_boost+=.01*(gui->sharpen_boost_lfo_theta);
+    
+    //pixelation lfos
+    
+    //cam1 lfo
+    
+    cam1_theta_pixel_scale_x+=.01*(gui->cam1_pixel_scale_x_lfo_theta);
+    cam1_theta_pixel_scale_y+=.01*(gui->cam1_pixel_scale_y_lfo_theta);
+    cam1_theta_pixel_mix+=.01*(gui->cam1_pixel_mix_lfo_theta);
+    cam1_theta_pixel_brightscale+=.01*(gui->cam1_pixel_brightscale_lfo_theta);
+    
+    //cam2 lfo
+    
+    cam2_theta_pixel_scale_x+=.01*(gui->cam2_pixel_scale_x_lfo_theta);
+    cam2_theta_pixel_scale_y+=.01*(gui->cam2_pixel_scale_y_lfo_theta);
+    cam2_theta_pixel_mix+=.01*(gui->cam2_pixel_mix_lfo_theta);
+    cam2_theta_pixel_brightscale+=.01*(gui->cam2_pixel_brightscale_lfo_theta);
+    
+    //fb1 lfo
+    
+    fb1_theta_pixel_scale_x+=.01*(gui->fb1_pixel_scale_x_lfo_theta);
+    fb1_theta_pixel_scale_y+=.01*(gui->fb1_pixel_scale_y_lfo_theta);
+    fb1_theta_pixel_mix+=.01*(gui->fb1_pixel_mix_lfo_theta);
+    fb1_theta_pixel_brightscale+=.01*(gui->fb1_pixel_brightscale_lfo_theta);
+    
+    //fb0 lfo
+    
+    fb0_theta_pixel_scale_x+=.01*(gui->fb0_pixel_scale_x_lfo_theta);
+    fb0_theta_pixel_scale_y+=.01*(gui->fb0_pixel_scale_y_lfo_theta);
+    fb0_theta_pixel_mix+=.01*(gui->fb0_pixel_mix_lfo_theta);
+    fb0_theta_pixel_brightscale+=.01*(gui->fb0_pixel_brightscale_lfo_theta);
+    
+    //fb2 lfo
+    
+    fb2_theta_pixel_scale_x+=.01*(gui->fb2_pixel_scale_x_lfo_theta);
+    fb2_theta_pixel_scale_y+=.01*(gui->fb2_pixel_scale_y_lfo_theta);
+    fb2_theta_pixel_mix+=.01*(gui->fb2_pixel_mix_lfo_theta);
+    fb2_theta_pixel_brightscale+=.01*(gui->fb2_pixel_brightscale_lfo_theta);
+    
+    //fb3 lfo
+    
+    fb3_theta_pixel_scale_x+=.01*(gui->fb3_pixel_scale_x_lfo_theta);
+    fb3_theta_pixel_scale_y+=.01*(gui->fb3_pixel_scale_y_lfo_theta);
+    fb3_theta_pixel_mix+=.01*(gui->fb3_pixel_mix_lfo_theta);
+    fb3_theta_pixel_brightscale+=.01*(gui->fb3_pixel_brightscale_lfo_theta);
+    
+    //ndi lfo
+    
+    ndi_theta_pixel_scale_x+=.01*(gui->ndi_pixel_scale_x_lfo_theta);
+    ndi_theta_pixel_scale_y+=.01*(gui->ndi_pixel_scale_y_lfo_theta);
+    ndi_theta_pixel_mix+=.01*(gui->ndi_pixel_mix_lfo_theta);
+    ndi_theta_pixel_brightscale+=.01*(gui->ndi_pixel_brightscale_lfo_theta);
+}
+
+//--------------------------
+void ofApp::hypercube_draw(){
+    
+    int limit=3;
+    for(int i=0;i<limit;i++){
+        hypercube_theta+=.1*gui->hypercube_theta_rate;
+        
+        hypercube_phi+=.1*gui->hypercube_phi_rate;
+        
+        
+        
+        hypercube_r=ofGetWidth()/16*(1);
+        
+        float xr=hypercube_r*(1);
+        hypercube_x[0]=xr*(cos(hypercube_theta)-sin(hypercube_theta))*(1-.5*(cos(hypercube_phi)));
+        hypercube_x[1]=xr*(cos(hypercube_theta)+sin(hypercube_theta))*(1-.5*(cos(PI/4+hypercube_phi)));
+        hypercube_x[2]=xr*(-cos(hypercube_theta)+sin(hypercube_theta))*(1-.5*(cos(PI/2+hypercube_phi)));
+        hypercube_x[3]=xr*(-cos(hypercube_theta)-sin(hypercube_theta))*(1-.5*(cos(3*PI/4+hypercube_phi)));
+        hypercube_x[4]=xr*(cos(hypercube_theta)-sin(hypercube_theta))*(1-.5*(cos(PI+hypercube_phi)));
+        hypercube_x[5]=xr*(cos(hypercube_theta)+sin(hypercube_theta))*(1-.5*(cos(5*PI/4+hypercube_phi)));
+        hypercube_x[6]=xr*(-cos(hypercube_theta)+sin(hypercube_theta))*(1-.5*(cos(3*PI/2+hypercube_phi)));
+        hypercube_x[7]=xr*(-cos(hypercube_theta)-sin(hypercube_theta))*(1-.5*(cos(7*PI/4+hypercube_phi)));
+        
+        float yr=hypercube_r*(1);
+        hypercube_y[0]=yr*(sin(hypercube_theta)+cos(hypercube_theta))*(1-.5*(cos(hypercube_phi)));
+        hypercube_y[1]=yr*(sin(hypercube_theta)-cos(hypercube_theta))*(1-.5*(cos(PI/4+hypercube_phi)));
+        hypercube_y[2]=yr*(-sin(hypercube_theta)-cos(hypercube_theta))*(1-.5*(cos(PI/2+hypercube_phi)));
+        hypercube_y[3]=yr*(-sin(hypercube_theta)+cos(hypercube_theta))*(1-.5*(cos(3*PI/4+hypercube_phi)));
+        hypercube_y[4]=yr*(sin(hypercube_theta)+cos(hypercube_theta))*(1-.5*(cos(PI+hypercube_phi)));
+        hypercube_y[5]=yr*(sin(hypercube_theta)-cos(hypercube_theta))*(1-.5*(cos(5*PI/4+hypercube_phi)));
+        hypercube_y[6]=yr*(-sin(hypercube_theta)-cos(hypercube_theta))*(1-.5*(cos(3*PI/2+hypercube_phi)));
+        hypercube_y[7]=yr*(-sin(hypercube_theta)+cos(hypercube_theta))*(1-.5*(cos(7*PI/4+hypercube_phi)));
+        
+        float zr=hypercube_r*(1);
+        hypercube_z[0]=-zr/2*cos(hypercube_phi)+hypercube_r;
+        hypercube_z[1]=-zr/2*cos(PI/4+hypercube_phi)+hypercube_r;
+        hypercube_z[2]=-zr/2*cos(PI/2+hypercube_phi)+hypercube_r;
+        hypercube_z[3]=-zr/2*cos(3*PI/4+hypercube_phi)+hypercube_r;
+        hypercube_z[4]=-zr/2*cos(PI+hypercube_phi)+hypercube_r;
+        hypercube_z[5]=-zr/2*cos(5*PI/4+hypercube_phi)+hypercube_r;
+        hypercube_z[6]=-zr/2*cos(3*PI/2+hypercube_phi)+hypercube_r;
+        hypercube_z[7]=-zr/2*cos(7*PI/8+hypercube_phi)+hypercube_r;
+        
+        
+        color_theta+=.01;
+        ofSetColor(127+127*sin(color_theta),0+192*abs(cos(color_theta*.2)),127+127*cos(color_theta/3.0f));
+        ofNoFill();
+        ofPushMatrix();
+        ofTranslate(ofGetWidth()/2,ofGetHeight()/2);
+        ofRotateYRad(-PI/2);
+        ofRotateZRad(hypercube_phi);
+        ofRotateXRad(hypercube_theta/3);
+        ofRotateXRad(hypercube_theta/5);
+        
+        //list up the vertexes, give them some kind of grouping and
+        //set up a set of 3 rotatios for each
+        //i think just pick like an inner cube and an outer cube
+        //if thats even possible
+        
+        ofDrawLine(hypercube_x[0],hypercube_y[0],hypercube_z[0],hypercube_x[1],hypercube_y[1],hypercube_z[1]);
+        ofDrawLine(hypercube_x[1],hypercube_y[1],hypercube_z[1],hypercube_x[2],hypercube_y[2],hypercube_z[2]);
+        ofDrawLine(hypercube_x[2],hypercube_y[2],hypercube_z[2],hypercube_x[3],hypercube_y[3],hypercube_z[3]);
+        ofDrawLine(hypercube_x[3],hypercube_y[3],hypercube_z[3],hypercube_x[4],hypercube_y[4],hypercube_z[4]);
+        ofDrawLine(hypercube_x[4],hypercube_y[4],hypercube_z[4],hypercube_x[5],hypercube_y[5],hypercube_z[5]);
+        ofDrawLine(hypercube_x[5],hypercube_y[5],hypercube_z[5],hypercube_x[6],hypercube_y[6],hypercube_z[6]);
+        ofDrawLine(hypercube_x[6],hypercube_y[6],hypercube_z[6],hypercube_x[7],hypercube_y[7],hypercube_z[7]);
+        ofDrawLine(hypercube_x[7],hypercube_y[7],hypercube_z[7],hypercube_x[0],hypercube_y[0],hypercube_z[0]);
+        
+        ofDrawLine(hypercube_x[0],hypercube_y[0],-hypercube_z[0],hypercube_x[1],hypercube_y[1],-hypercube_z[1]);
+        ofDrawLine(hypercube_x[1],hypercube_y[1],-hypercube_z[1],hypercube_x[2],hypercube_y[2],-hypercube_z[2]);
+        ofDrawLine(hypercube_x[2],hypercube_y[2],-hypercube_z[2],hypercube_x[3],hypercube_y[3],-hypercube_z[3]);
+        ofDrawLine(hypercube_x[3],hypercube_y[3],-hypercube_z[3],hypercube_x[4],hypercube_y[4],-hypercube_z[4]);
+        ofDrawLine(hypercube_x[4],hypercube_y[4],-hypercube_z[4],hypercube_x[5],hypercube_y[5],-hypercube_z[5]);
+        ofDrawLine(hypercube_x[5],hypercube_y[5],-hypercube_z[5],hypercube_x[6],hypercube_y[6],-hypercube_z[6]);
+        ofDrawLine(hypercube_x[6],hypercube_y[6],-hypercube_z[6],hypercube_x[7],hypercube_y[7],-hypercube_z[7]);
+        ofDrawLine(hypercube_x[7],hypercube_y[7],-hypercube_z[7],hypercube_x[0],hypercube_y[0],-hypercube_z[0]);
+        
+        ofDrawLine(hypercube_x[0],hypercube_y[0],hypercube_z[0],hypercube_x[0],hypercube_y[0],-hypercube_z[0]);
+        ofDrawLine(hypercube_x[1],hypercube_y[1],hypercube_z[1],hypercube_x[1],hypercube_y[1],-hypercube_z[1]);
+        ofDrawLine(hypercube_x[2],hypercube_y[2],hypercube_z[2],hypercube_x[2],hypercube_y[2],-hypercube_z[2]);
+        ofDrawLine(hypercube_x[3],hypercube_y[3],hypercube_z[3],hypercube_x[3],hypercube_y[3],-hypercube_z[3]);
+        ofDrawLine(hypercube_x[4],hypercube_y[4],hypercube_z[4],hypercube_x[4],hypercube_y[4],-hypercube_z[4]);
+        ofDrawLine(hypercube_x[5],hypercube_y[5],hypercube_z[5],hypercube_x[5],hypercube_y[5],-hypercube_z[5]);
+        ofDrawLine(hypercube_x[6],hypercube_y[6],hypercube_z[6],hypercube_x[6],hypercube_y[6],-hypercube_z[6]);
+        ofDrawLine(hypercube_x[7],hypercube_y[7],hypercube_z[7],hypercube_x[7],hypercube_y[7],-hypercube_z[7]);
+        
+        ofDrawLine(hypercube_x[0],hypercube_y[0],-hypercube_z[0],hypercube_x[4],hypercube_y[4],-hypercube_z[4]);
+        ofDrawLine(hypercube_x[1],hypercube_y[1],-hypercube_z[1],hypercube_x[5],hypercube_y[5],-hypercube_z[5]);
+        ofDrawLine(hypercube_x[2],hypercube_y[2],-hypercube_z[2],hypercube_x[6],hypercube_y[6],-hypercube_z[6]);
+        ofDrawLine(hypercube_x[3],hypercube_y[3],-hypercube_z[3],hypercube_x[7],hypercube_y[7],-hypercube_z[7]);
+        
+        ofDrawLine(hypercube_x[0],hypercube_y[0],hypercube_z[0],hypercube_x[4],hypercube_y[4],hypercube_z[4]);
+        ofDrawLine(hypercube_x[1],hypercube_y[1],hypercube_z[1],hypercube_x[5],hypercube_y[5],hypercube_z[5]);
+        ofDrawLine(hypercube_x[2],hypercube_y[2],hypercube_z[2],hypercube_x[6],hypercube_y[6],hypercube_z[6]);
+        ofDrawLine(hypercube_x[3],hypercube_y[3],hypercube_z[3],hypercube_x[7],hypercube_y[7],hypercube_z[7]);
+        
+        
+        
+        
+        
+        
+        ofPopMatrix();
+        
+    }//endifor
+    
+}
+
  /****************************************************/
 
-
+void ofApp::tetrahedron_setup(){
+    
+    
+    ofVec3f tri1;
+    ofVec3f tri2;
+    ofVec3f tri3;
+    ofVec3f tri4;
+    tri1.set(1,1,1);
+    tri2.set(-1,-1,1);
+    tri3.set(-1,1,-1);
+    tri4.set(1,-1,-1);
+    float shapeScale=ofGetWidth()/8;
+    
+    tri1=tri1*shapeScale;
+    tri2=tri2*shapeScale;
+    tri3=tri3*shapeScale;
+    tri4=tri4*shapeScale;
+    
+    
+    tetrahedron.lineTo(tri1);
+    tetrahedron.lineTo(tri2);
+    tetrahedron.lineTo(tri4);
+    tetrahedron.lineTo(tri1);
+    tetrahedron.lineTo(tri3);
+    tetrahedron.lineTo(tri2);
+    tetrahedron.lineTo(tri3);
+    tetrahedron.lineTo(tri4);
+    //tetrahedron.lineTo(tri4);
+    
+}
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -1168,19 +1378,8 @@ void ofApp::keyPressed(int key){
     if(key=='3'){
         aa=ss=dd=ff=gg=hh=0;
     }
-    
-    if(key=='='){
-        alpha+=1;
-    }
-    if(key=='-'){
-        alpha-=1;
-    }
-    
-    if(key=='2'){
-          //loop.play();
-    }
-    
  
+  
     if(key=='1'){
         for(int i=0;i<fbob;i++){
             pastFrames[i].begin();
@@ -1227,8 +1426,8 @@ void ofApp::keyPressed(int key){
     if(key=='['){scale2+=0.01;}
     if(key==']'){scale2-=0.01;}
     
-    if(key=='q'){qq+=0.001;cout << "qq"<<qq<< endl;}
-    if(key=='w'){qq-=0.001;cout << "qq"<<qq<< endl;}
+    if(key=='q'){qq+=.01;cout << "qq"<<qq<< endl;}
+    if(key=='w'){qq-=.01;cout << "qq"<<qq<< endl;}
     if(key=='e'){ee+=.1;cout << "ee"<<ee<< endl;}
     if(key=='r'){ee-=.1;cout << "ee"<<ee<< endl;}
     

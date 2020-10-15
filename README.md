@@ -3,12 +3,9 @@ a video mixer, framebuffer delay, and feedback resynthesis engine built in openF
 
 (QUICK ADVERTISEMENT FOR MYSELF https://andreijaycreativecoding.com/ this is my website, there is a pay pal button on here, if you have a fun time with the software i make and can afford to send me a donation it is super appreciated, the more donations i recieve means the more time i can spend working on crazy awesome open source software)
 
-OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  For OSX download the zip here 
+OK! so installing from these files here on the github are kind of only for folks reasonably well versed in navigating openFrameworks already!  I can't really help anyone out anymore with this sort of thing as the volume of requests has greatly outpaced the amount of time I can afford to spend on that! But for everyone who has no idea what the heck an open frame work is don't worry I jurry rigged a reasonable solution for yalls!  For OSX ownload the zip here 
 
 https://drive.google.com/open?id=1uStceYZ25zGLt6KTwCcE6YIUqzXRrYk6
-
-then follow the instructions here for setting up Xcode https://openframeworks.cc/setup/xcode/ 
-(you might want to not download xcode from the app store but instead grab an older version from here https://openframeworks.cc/setup/xcode/)
 
 unzip and follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!
 
@@ -16,16 +13,14 @@ for windows download the zip here
 
 https://drive.google.com/open?id=1xPWi1Zm_bI73GpxnLD7MbGmgyrrwBPhj
 
-and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun! 
+and then follow the instructions here for installing visual studio 2017 https://openframeworks.cc/setup/vs/ and then follow the instructions in the txt file named "(()))00ReadThisTextFile!" and have fun!  *edit ok i forgot to add that into the windows version* heres the text for now
 
-if u are working in the dreaded osx 'Catalina" you will perhaps need to mess around with permissions, like in this picture below
 
-![Image description](https://github.com/ex-zee-ex/pictures/blob/master/xcode_permissions.jpg)
+"WHAT THE HECK IS THIS????
 
-giving xcode full permission to the disk might be necessary if you are getting an error like "command /bin/sh failed with exit code 74"
-
-![Image description](https://github.com/ex-zee-ex/pictures/blob/master/xcode_permissions.jpg)
-
+Welp you have downloaded and uncompressed the video_waaaves_2 ! please note that before going any further you should make sure to have visual studio 2017 installed according to the instructions linked in the readme!
+once you have achieved vs2017 steps then all you have to do is go to apps->myapps and then open up VIDEO_WAAAVES_IM_windows  folder and find the thing that says VIDEO_WAAAVES_IM_windows.vcxproj, double click on that.  The virtual studio console will pop up and you will see a button with the play symbol on it somewhere around the middle top of the screen, press that button and have fun!"
+*end edit*
 
 The most notable thing about the 2.0 update is that i fixed all the stuff that i broke when i put midi controls in, new controls for the sharpening algorithm that allow for a lot more complex reaction diffusion patterns, and fucking like a million lfos everywhere.  For everyone who downloaded the 2.0 upon release i have since fixed the thing where channel 2 wasn't getting mixed in as well  
 
@@ -129,11 +124,3 @@ fb1 hueoffset 8
 fb1 huelfo 19
 
 (yes i know that is far from all of the parameters.  I'll be frank, adding full midi support for every parameter would be pretty boring and time consuming and adds very little to my personal usage of this software!  if you want more midi ccs mapped to parameters you'll basically have to pay me because its pretty unlikely that i'll decide one afternoon "hmmm what i could i do that is boring and time consuming and gives me no personal satisfaction.  a paypal button can be found at andreijaycreativecoding.com)
-
-
-HOW TO CHANGE YOUR CAMERA SOURCES
-so video waaaves just default grabs device id 0 and 1, if you only have 2 cameras recognized in your system then you don't need to be concerned with this.  if you have a couple of external cameras you would like to use or would like to say enable spoutcam or blackmagic inputs via this method then you will need to check the console while this is running to see what devices are listed
-
-![Image description](https://github.com/ex-zee-ex/pictures/blob/master/v_w_camid.png)
-
-here you can see i have two devices listed in the console with device ids 0 and 1, and that in ofApp.cpp cam1 is set to device 0 and cam2 is set to device 1.  all you need to to do change devices is change the numbers in .setDeviceID()!

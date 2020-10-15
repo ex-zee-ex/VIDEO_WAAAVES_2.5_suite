@@ -18,12 +18,22 @@ int main(){
     //dualwindowsetup
     ofGLFWWindowSettings settings;
     
-    //settings.setSize(640, 480);
+    settings.setSize(720,480);
     
     
-    settings.setSize(1280,960);
+   // settings.setSize(1280,960);
+     //796  settings.setSize(1024,1024);
+    
+     //settings.setSize(796,633);
     //settings.setSize(1280,800);
-  //  settings.setSize(1024, 768);
+    //settings.setSize(1024, 768);
+    
+    //settings.setSize(1080,1080);
+    
+    //settings.setSize(640,480);
+    
+    //settings.setSize(512, 512);
+
     settings.setPosition(ofVec2f(400,0));
     settings.resizable = true;
     //settings.decorated = false;

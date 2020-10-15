@@ -13,7 +13,8 @@
 #include "ofMain.h"
 #include "ofxMidi.h"
 #include "GuiApp.h"
-#include "ofxSyphon.h"
+#include "ofxNDISender.h"
+#include "ofxNDISendStream.h"
 
 class ofApp : public ofBaseApp, public ofxMidiListener {
 	
@@ -34,8 +35,40 @@ public:
     
     void midibiz();
     
+    void NDI_reciever_setup(string reciever_name);
+    void NDI_reciever_update();
+    
+    ofxNDIReceiver ndi_receiver_;
+    ofxNDIRecvVideoFrameSync ndi_video_;
+    ofPixels ndi_pixels;
+    
+    ofFbo ndi_fbo;
+    
+    void NDI_sender_setup(string app_name);
+    void NDI_sender_update();
+    
+    ofxNDISender sender_;
+    ofxNDISendVideo ndi_send_video_;
+    
+    void tetrahedron_setup();
+    
     float lfo(float amp, float rate,int shape);
+    
+    void lfo_update();
 	
+   
+    
+    
+    void hypercube_draw();
+    
+    float hypercube_theta=0;
+    float hypercube_phi=0;
+    float hypercube_r=0.0;
+    
+    float hypercube_x[8];
+    float hypercube_y[8];
+    float hypercube_z[8];
+    
     //-----------guibiz
     shared_ptr<GuiApp> gui;
     
@@ -68,37 +101,12 @@ public:
     ofVideoGrabber cam1;
     
     ofVideoGrabber cam2;
+ 
+ 
 
-    
+   
+  
 
-    
-    
-    //secret loop option over here
-   // ofVideoPlayer loopMovie;
-    //trysomaudiobiz
-    
-    //ofSoundPlayer		loop;
-    
-   // static constexpr size_t nBandsToGet = 128;
-    //std::array<float, nBandsToGet> fftSmoothed{{0}};
-    
-    //maybes try the frequency in a terrain curve
-   /*
-     ofPolyline frequencyLine0;
-     ofPolyline frequencyLine1;
-     ofPolyline frequencyLine2;
-     ofPolyline frequencyLine3;
-    
-    ofPlanePrimitive plane;
-    */
-
-    //sypphon some shit in yo
-    
-    ofxSyphonClient mClient;
-    
-    //and send it back out too
-    ofxSyphonServer mainOutputSyphonServer;
-    
-    //ofImage pnt_img;
+ 
     
 };

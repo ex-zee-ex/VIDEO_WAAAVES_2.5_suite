@@ -1,3 +1,3 @@
 ofxImGui
 ofxMidi
-ofxSyphon
+ofxNDI

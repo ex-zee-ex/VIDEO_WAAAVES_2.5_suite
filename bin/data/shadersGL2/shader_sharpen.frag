@@ -3,17 +3,22 @@
 
 uniform sampler2DRect tex0;
 
+uniform sampler2DRect texmod;
+
 varying vec2 texCoordVarying;
 
-uniform float sharpAmnt;
-
+uniform float sharpen_amount;
 uniform float sharpen_boost;
+uniform float sharpen_radius;
 
-uniform float steppp;
+uniform float texmod_sharpen_amount;
+uniform float texmod_sharpen_boost;
+uniform float texmod_sharpen_radius;
 
-uniform float chi;
 
-vec3 rgb2hsv(vec3 c)
+uniform float qq;
+
+vec3 rgb2hsb(vec3 c)
 {
     vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
     vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
@@ -24,7 +29,7 @@ vec3 rgb2hsv(vec3 c)
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
-vec3 hsv2rgb(vec3 c)
+vec3 hsb2rgb(vec3 c)
 {
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
@@ -34,41 +39,58 @@ vec3 hsv2rgb(vec3 c)
 
 void main()
 {
-    vec4 color_sharpen=vec4(0);
     
-    //float steppp=.0;
-   // float chi=1.0;
+    vec4 color_sharpen=vec4(0.0,0.0,0.0,1.0);
     
-    color_sharpen=(chi)*texture2DRect(tex0,texCoordVarying)+(-chi*8)*(
-                texture2DRect(tex0,texCoordVarying+vec2(steppp,0))+
-                texture2DRect(tex0,texCoordVarying+vec2(-steppp,0))+
-                texture2DRect(tex0,texCoordVarying+vec2(0,steppp))+
-                texture2DRect(tex0,texCoordVarying+vec2(0,-steppp))+
-                texture2DRect(tex0,texCoordVarying+vec2(steppp,steppp))+
-                texture2DRect(tex0,texCoordVarying+vec2(-steppp,steppp))+
-                texture2DRect(tex0,texCoordVarying+vec2(steppp,-steppp))+
-                texture2DRect(tex0,texCoordVarying+vec2(-steppp,-steppp))
-                                                                      );
-    //color_sharpen=color_sharpen/9;
+    vec4 texmod_color=texture2DRect(texmod,texCoordVarying);
+    float texmod_bright=texmod_color.r*.299+texmod_color.g*.587+texmod_color.b*.114;
     
-    color_sharpen=color_sharpen/9;
-    //gl_FragColor = color_sharpenandblur;
+    float sharpen_radius_mod=texmod_bright*texmod_sharpen_radius+sharpen_radius;
     
-     color_sharpen=texture2DRect(tex0,texCoordVarying)+sharpAmnt*color_sharpen;
+    /*
+     unsharp mask zones
+    vec3 color_unsharp=texture2DRect(tex0,texCoordVarying+vec2(sharpen_radius,sharpen_radius)).rgb
+                      +texture2DRect(tex0,texCoordVarying+vec2(sharpen_radius,-sharpen_radius)).rgb
+                      +texture2DRect(tex0,texCoordVarying+vec2(-sharpen_radius,-sharpen_radius)).rgb
+                      +texture2DRect(tex0,texCoordVarying+vec2(-sharpen_radius,sharpen_radius)).rgb;
     
-    //vec3 color_sharpen_hsb=vec3(0);
+    color_unsharp*=.25;
     
-    vec3 color_sharpen_hsb=rgb2hsv(vec3(color_sharpen.r,color_sharpen.g,color_sharpen.b));
+    color_sharpen.rgb=texture2DRect(tex0,texCoordVarying).rgb-sharpen_amount*color_unsharp;
+     
+     */
+    float color_sharpen_bright=0.0;
     
-    color_sharpen_hsb.b=(sharpen_boost+1.0)*color_sharpen_hsb.b;
+    color_sharpen_bright=
+    rgb2hsb(texture2DRect(tex0,texCoordVarying+vec2(sharpen_radius_mod,0)).rgb).z+
+    rgb2hsb(texture2DRect(tex0,texCoordVarying+vec2(-sharpen_radius_mod,0)).rgb).z+
+    rgb2hsb(texture2DRect(tex0,texCoordVarying+vec2(0,sharpen_radius_mod)).rgb).z+
+    rgb2hsb(texture2DRect(tex0,texCoordVarying+vec2(0,-sharpen_radius_mod)).rgb).z+
+    rgb2hsb(texture2DRect(tex0,texCoordVarying+vec2(sharpen_radius_mod,sharpen_radius_mod)).rgb).z+
+    rgb2hsb(texture2DRect(tex0,texCoordVarying+vec2(-sharpen_radius_mod,sharpen_radius_mod)).rgb).z+
+    rgb2hsb(texture2DRect(tex0,texCoordVarying+vec2(sharpen_radius_mod,-sharpen_radius_mod)).rgb).z+
+    rgb2hsb(texture2DRect(tex0,texCoordVarying+vec2(-sharpen_radius_mod,-sharpen_radius_mod)).rgb).z;
     
-    color_sharpen_hsb.b=(sharpen_boost+1.0)*color_sharpen_hsb.b;
+    color_sharpen_bright=color_sharpen_bright/8.0;
     
-    color_sharpen=vec4(hsv2rgb(vec3(color_sharpen_hsb.r,color_sharpen_hsb.g,color_sharpen_hsb.b)),1.0);
-    //color_sharpen.rgb=texture2DRect(tex0,texCoordVarying).rgb+sharpAmnt*color_sharpen.rgb;
-   // color_sharpen.a=1.0;
-   // gl_FragColor = texture2DRect(texCoordVarying,tex0);
-   // gl_FragColor =color_sharpen;
+    vec4 original_color=texture2DRect(tex0,texCoordVarying);
+    vec3 original_color_hsb=rgb2hsb(original_color.rgb);
+    original_color_hsb.z-=(sharpen_amount+texmod_sharpen_amount*texmod_bright)*color_sharpen_bright;
     
-     gl_FragColor =color_sharpen;
+    
+    //old school manual boost method
+    //original_color_hsb.z*=(1.0+sharpen_boost+texmod_sharpen_boost*texmod_bright);
+    
+    //try baking in the boost into the amount
+    //this does not work so well over here lol
+    if(sharpen_amount>0){
+        original_color_hsb.z*=(1.0+sharpen_amount+sharpen_boost+texmod_sharpen_boost*texmod_bright);
+    }
+    
+    
+    color_sharpen=vec4(hsb2rgb(original_color_hsb),1.0);
+    
+    
+    
+    gl_FragColor =color_sharpen;
 }
